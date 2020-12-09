@@ -19,7 +19,7 @@
             "type": "image/png"
         },
         {
-            "src": "/logo-144.png",
+            "src": "/144.png",
             "sizes": "144x144",
             "type": "image/png"
         }
