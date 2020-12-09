@@ -3,7 +3,7 @@
     <img alt="J Computer Solutions Logo" src="./assets/logo.png">
     <p>
     Record your screen and save the file as a video.
-    Perfect for screen recording for clients.
+    Perfect for screen recording for clients. Completely client side app and is installable as a PWA!
     </p>
     <p>
 
@@ -44,8 +44,6 @@ export default {
       var blob = new Blob(this.recordedChunks, {
       type: "video/webm"
     });
-    console.log("Size: ", blob.size);
-    if(blob.size/1000000 > 1){
     var img = '/logo.png';
     var text = 'If you enjoyed this product consider donating!';
     navigator.serviceWorker.getRegistration().then(function(reg) {
@@ -56,8 +54,6 @@ export default {
           ]
             });
     });
-
-    }
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     document.body.appendChild(a);
@@ -71,7 +67,6 @@ export default {
     this.recordedChunks = []
     },
     handleDataAvailable: function(event) {
-      console.log("data-available");
       if (event.data.size > 0) {
         this.recordedChunks.push(event.data);
         this.isRecording = false
@@ -93,7 +88,7 @@ export default {
         this.isRecording = true
       } catch(err) {
         this.isRecording = false
-        console.error("Error: " + err);
+        alery(err);
       }
     }
   },
