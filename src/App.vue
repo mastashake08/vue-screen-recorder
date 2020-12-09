@@ -10,10 +10,9 @@
     Currently full system audio is only available in Windows and Chrome OS.
     In Linux and MacOS only chrome tabs are shared.
     </p>
+    <button v-on:click="getStream" v-if="!isRecording"> Start Recording 🎥</button>
+    <button v-on:click="stopStream" v-else> Stop Screen Recording ❌ </button>
     <br>
-    <button v-on:click="getStream"> Start Recording 🎥</button>
-    <br>
-    <button v-on:click="stopStream"> Stop Screen Recording ❌ </button>
   </div>
 </template>
 
@@ -23,6 +22,7 @@ export default {
   name: 'App',
   data() {
     return {
+      isRecording: false,
       options: { mimeType: "video/webm; codecs=vp9" },
       displayOptions: {
       video: {
@@ -48,7 +48,15 @@ export default {
     if(blob.size/1000000 > 1){
     var img = '/logo.png';
     var text = 'If you enjoyed this product consider donating!';
-      new Notification('Screen Recorder', { body: text, icon: img });
+    navigator.serviceWorker.getRegistration().then(function(reg) {
+      reg.showNotification('Screen Recorder', { body: text, icon: img, requireInteraction: true,
+      actions: [
+          {action: 'donate', title: 'Donate',icon: 'logo.png'},
+          {action: 'close', title: 'Close',icon: 'logo.png'}
+          ]
+            });
+    });
+
     }
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -60,12 +68,13 @@ export default {
     a.download = n+".webm";
     a.click();
     window.URL.revokeObjectURL(url);
+    this.recordedChunks = []
     },
     handleDataAvailable: function(event) {
       console.log("data-available");
       if (event.data.size > 0) {
         this.recordedChunks.push(event.data);
-
+        this.isRecording = false
         this.download();
       } else {
         // ...
@@ -76,11 +85,14 @@ export default {
     },
     getStream: async function() {
     try {
+
         this.stream =  await navigator.mediaDevices.getDisplayMedia(this.displayOptions);
         this.mediaRecorder = new MediaRecorder(this.stream, this.options);
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
         this.mediaRecorder.start();
+        this.isRecording = true
       } catch(err) {
+        this.isRecording = false
         console.error("Error: " + err);
       }
     }

@@ -16,3 +16,25 @@ workbox.routing.registerRoute(
     cacheName: CACHE
   })
 );
+self.addEventListener('notificationclick', function(event) {
+  if (!event.action) {
+    // Was a normal notification click
+    console.log('Notification Click.');
+    return;
+  }
+
+  switch (event.action) {
+    case 'donate':
+      console.log('Donate');
+      var url = 'https://cash.me/$mastashake08'
+      clients.openWindow(url)
+      break;
+    case 'close':
+      console.log('Close');
+      event.notification.close()
+      break;
+    default:
+      console.log(`Unknown action clicked: '${event.action}'`);
+      break;
+  }
+});
