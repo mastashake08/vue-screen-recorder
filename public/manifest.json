@@ -17,6 +17,11 @@
             "src": "/logo.png",
             "sizes": "800x511",
             "type": "image/png"
+        },
+        {
+            "src": "/logo-144.png",
+            "sizes": "144x144",
+            "type": "image/png"
         }
     ],
     "url": "https://recorder.jcompsolu.com",
