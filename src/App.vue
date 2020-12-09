@@ -44,16 +44,7 @@ export default {
       var blob = new Blob(this.recordedChunks, {
       type: "video/webm"
     });
-    var img = '/logo.png';
-    var text = 'If you enjoyed this product consider donating!';
-    navigator.serviceWorker.getRegistration().then(function(reg) {
-      reg.showNotification('Screen Recorder', { body: text, icon: img, requireInteraction: true,
-      actions: [
-          {action: 'donate', title: 'Donate',icon: 'logo.png'},
-          {action: 'close', title: 'Close',icon: 'logo.png'}
-          ]
-            });
-    });
+
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     document.body.appendChild(a);
@@ -65,6 +56,19 @@ export default {
     a.click();
     window.URL.revokeObjectURL(url);
     this.recordedChunks = []
+    this.showNotification()
+    },
+    showNotification: function() {
+      var img = '/logo.png';
+      var text = 'If you enjoyed this product consider donating!';
+      navigator.serviceWorker.getRegistration().then(function(reg) {
+        reg.showNotification('Screen Recorder', { body: text, icon: img, requireInteraction: true,
+        actions: [
+            {action: 'donate', title: 'Donate',icon: 'logo.png'},
+            {action: 'close', title: 'Close',icon: 'logo.png'}
+            ]
+              });
+      });
     },
     handleDataAvailable: function(event) {
       if (event.data.size > 0) {
