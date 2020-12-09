@@ -6,7 +6,7 @@
     Perfect for screen recording for clients.
     </p>
     <p>
-    
+
     Currently full system audio is only available in Windows and Chrome OS.
     In Linux and MacOS only chrome tabs are shared.
     </p>
@@ -45,6 +45,11 @@ export default {
       type: "video/webm"
     });
     console.log("Size: ", blob.size);
+    if(blob.size/1000000 > 1){
+    var img = '/logo.png';
+    var text = 'If you enjoyed this product consider donating!';
+      new Notification('Screen Recorder', { body: text, icon: img });
+    }
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     document.body.appendChild(a);
@@ -80,8 +85,10 @@ export default {
       }
     }
   },
-  created() {
-
+  mounted() {
+  Notification.requestPermission().then(function(result) {
+    console.log(result);
+  });
   }
 }
 </script>
