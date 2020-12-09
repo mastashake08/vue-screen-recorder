@@ -88,7 +88,7 @@ export default {
         this.isRecording = true
       } catch(err) {
         this.isRecording = false
-        alery(err);
+        alert(err);
       }
     }
   },
