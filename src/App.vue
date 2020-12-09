@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <img alt="J Computer Solutions Logo" src="./assets/logo.png">
+    <img alt="J Computer Solutions Logo" src="./assets/logo.png" class="object-contain h-48 w-full">
     <p>
     Record your screen and save the file as a video.
     Perfect for screen recording for clients. Completely client side app and is installable as a PWA!
@@ -10,8 +10,8 @@
     Currently full system audio is only available in Windows and Chrome OS.
     In Linux and MacOS only chrome tabs are shared.
     </p>
-    <button v-on:click="getStream" v-if="!isRecording"> Start Recording 🎥</button>
-    <button v-on:click="stopStream" v-else> Stop Screen Recording ❌ </button>
+    <t-button v-on:click="getStream" v-if="!isRecording"> Start Recording 🎥</t-button>
+    <t-button v-on:click="stopStream" v-else> Stop Screen Recording ❌ </t-button>
     <br>
   </div>
 </template>
