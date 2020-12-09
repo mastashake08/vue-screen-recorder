@@ -1,17 +1,80 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <img alt="J Computer Solutions Logo" src="./assets/logo.png">
+    <p>
+    Record your screen and save the file as a video. Perfect for screen recording for clients.
+    </p>
+    <br>
+    <button v-on:click="getStream"> Start Recording 🎥</button>
+    <br>
+    <button v-on:click="stopStream"> Stop Screen Recording ❌ </button>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
 
 export default {
   name: 'App',
-  components: {
-    HelloWorld
+  data() {
+    return {
+      options: { mimeType: "video/webm; codecs=vp9" },
+      displayOptions: {
+      video: {
+        cursor: "always"
+      },
+      audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        }
+      },
+      mediaRecorder: {},
+      stream: {},
+      recordedChunks: []
+    }
+  },
+  methods: {
+    download: function(){
+      var blob = new Blob(this.recordedChunks, {
+      type: "video/webm"
+    });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    a.href = url;
+    var d = new Date();
+    var n = d.toUTCString();
+    a.download = n+".webm";
+    a.click();
+    window.URL.revokeObjectURL(url);
+    },
+    handleDataAvailable: function(event) {
+      console.log("data-available");
+      if (event.data.size > 0) {
+        this.recordedChunks.push(event.data);
+        console.log(this.recordedChunks);
+        this.download();
+      } else {
+        // ...
+      }
+    },
+    stopStream: function() {
+      this.mediaRecorder.stop()
+    },
+    getStream: async function() {
+    try {
+        this.stream =  await navigator.mediaDevices.getDisplayMedia(this.displayOptions);
+        this.mediaRecorder = new MediaRecorder(this.stream, this.options);
+        this.mediaRecorder.ondataavailable = this.handleDataAvailable;
+        this.mediaRecorder.start();
+      } catch(err) {
+        console.error("Error: " + err);
+      }
+    }
+  },
+  created() {
+
   }
 }
 </script>
