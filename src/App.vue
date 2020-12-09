@@ -2,7 +2,13 @@
   <div id="app">
     <img alt="J Computer Solutions Logo" src="./assets/logo.png">
     <p>
-    Record your screen and save the file as a video. Perfect for screen recording for clients.
+    Record your screen and save the file as a video.
+    Perfect for screen recording for clients.
+    </p>
+    <p>
+    
+    Currently full system audio is only available in Windows and Chrome OS.
+    In Linux and MacOS only chrome tabs are shared.
     </p>
     <br>
     <button v-on:click="getStream"> Start Recording 🎥</button>
@@ -38,6 +44,7 @@ export default {
       var blob = new Blob(this.recordedChunks, {
       type: "video/webm"
     });
+    console.log("Size: ", blob.size);
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     document.body.appendChild(a);
@@ -53,7 +60,7 @@ export default {
       console.log("data-available");
       if (event.data.size > 0) {
         this.recordedChunks.push(event.data);
-        console.log(this.recordedChunks);
+
         this.download();
       } else {
         // ...
