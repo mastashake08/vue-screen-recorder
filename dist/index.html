@@ -1,4 +1,67 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/favicon.ico"><link rel="manifest" href="/manifest.json"><script type="module">// This is the "Offline copy of pages" service worker
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><meta property="og:title" content="J Computer Solutions LLC - Screen Recorder"><meta property="og:site_name" content="Screen Recorder"><meta property="og:url" content="https://recorder.jcompsolu.com"><meta property="og:description" content="A PWA that allows you to record your screen including video & audio and save the file to your desktop. Perfect for client instruction videos and presentations."><meta property="og:type" content="website"><meta property="og:image" content="https://recorder.jcompsolu.com"><link rel="icon" href="/favicon.ico"><link rel="manifest" href="/manifest.json"><script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Screen Recorder",
+      "operatingSystem": "WEB",
+      "applicationCategory": "WebApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "1.00",
+        "priceCurrency": "USD"
+      }
+    }</script><script type="application/ld+json">{
+     "@context": "https://schema.org",
+     "@type": "LocalBusiness",
+     "image": [
+       "https://recorder.jcompsolu.com/logo.png"
+      ],
+     "@id": "https://jcompsolu.com",
+     "name": "J Computer Solutions LLC",
+     "address": {
+       "@type": "PostalAddress",
+       "streetAddress": "2008 West Main Street",
+       "addressLocality": "Louisville",
+       "addressRegion": "KY",
+       "postalCode": "40203",
+       "addressCountry": "US"
+     },
+     "url": "https://www.jcompsolu.com",
+     "telephone": "+18594024863",
+     "priceRange": "$$$",
+     "openingHoursSpecification": [
+       {
+         "@type": "OpeningHoursSpecification",
+         "dayOfWeek": [
+           "Monday",
+           "Tuesday"
+         ],
+         "opens": "08:00",
+         "closes": "17:00"
+       },
+       {
+         "@type": "OpeningHoursSpecification",
+         "dayOfWeek": [
+           "Wednesday",
+           "Thursday",
+           "Friday"
+         ],
+         "opens": "08:00",
+         "closes": "23:00"
+       },
+       {
+         "@type": "OpeningHoursSpecification",
+         "dayOfWeek": "Saturday",
+         "opens": "08:00",
+         "closes": "17:00"
+       },
+       {
+         "@type": "OpeningHoursSpecification",
+         "dayOfWeek": "Sunday",
+         "opens": "08:00",
+         "closes": "17:00"
+       }
+     ]
+   }</script><script type="module">// This is the "Offline copy of pages" service worker
 
     /*
      This code uses the pwa-update web component https://github.com/pwa-builder/pwa-update to register your service worker,
