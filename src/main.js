@@ -1,7 +1,16 @@
 import Vue from 'vue'
 import App from './App.vue'
 import VueTailwind from 'vue-tailwind'
+import Ads from 'vue-google-adsense'
+import VueGtag from "vue-gtag";
 
+Vue.use(VueGtag, {
+  config: { id: "279692243" }
+});
+
+Vue.use(require('vue-script2'))
+
+Vue.use(Ads.Adsense)
 const settings = {
   TInput: {
     classes: 'form-input border-2 text-gray-700',

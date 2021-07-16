@@ -6,13 +6,16 @@
     Perfect for screen recording for clients. Completely client side app and is installable as a PWA!
     </p>
     <p>
-
     Currently full system audio is only available in Windows and Chrome OS.
     In Linux and MacOS only chrome tabs are shared.
     </p>
     <t-button v-on:click="getStream" v-if="!isRecording"> Start Recording 🎥</t-button>
     <t-button v-on:click="stopStream" v-else> Stop Screen Recording ❌ </t-button>
     <br>
+    <Adsense
+      data-ad-client="ca-pub-7023023584987784"
+      data-ad-slot="8309290466">
+    </Adsense>
   </div>
 </template>
 
@@ -41,6 +44,7 @@ export default {
   },
   methods: {
     download: function(){
+      this.$gtag.event('download-stream', {})
       var blob = new Blob(this.recordedChunks, {
       type: "video/webm"
     });
@@ -80,7 +84,12 @@ export default {
       }
     },
     stopStream: function() {
+      this.$gtag.event('stream-stop', {})
       this.mediaRecorder.stop()
+      this.mediaRecorder = null
+      this.stream.getTracks()
+      .forEach(track => track.stop())
+
     },
     getStream: async function() {
     try {
@@ -90,16 +99,19 @@ export default {
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
         this.mediaRecorder.start();
         this.isRecording = true
+        this.$gtag.event('stream-start', {})
       } catch(err) {
         this.isRecording = false
+        this.$gtag.event('stream-stop', {})
         alert(err);
       }
     }
   },
   mounted() {
-  Notification.requestPermission().then(function(result) {
-    console.log(result);
-  });
+    let that = this
+    Notification.requestPermission().then(function(result) {
+      that.$gtag.event('accepted-notifications', { result: result })
+    });
   }
 }
 </script>
