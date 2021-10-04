@@ -3,7 +3,7 @@ import App from './App.vue'
 import VueTailwind from 'vue-tailwind'
 import Ads from 'vue-google-adsense'
 import VueGtag from "vue-gtag";
-
+import "tailwindcss/tailwind.css"
 Vue.use(VueGtag, {
   config: { id: "279692243" }
 });
@@ -20,7 +20,7 @@ const settings = {
     }
   },
 TButton: {
-    classes: 'rounded-lg border block inline-flex items-center justify-center',
+    classes: 'rounded-lg border block inline-flex items-center justify-center block px-4 py-2 transition duration-100 ease-in-out focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed',
     variants: {
       secondary: 'rounded-lg border block inline-flex items-center justify-center bg-purple-500 border-purple-500 hover:bg-purple-600 hover:border-purple-600',
     }

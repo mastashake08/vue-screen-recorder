@@ -9,8 +9,28 @@
     Currently full system audio is only available in Windows and Chrome OS.
     In Linux and MacOS only chrome tabs are shared.
     </p>
+    <t-modal
+      header="Email Recording"
+      ref="modal"
+    >
+  <t-input :value="this.sendEmail" placeholder="Email Address" name="send-email" />
+  <template v-slot:footer>
+    <div class="flex justify-between">
+      <t-button type="button" @click="$refs.modal.hide()">
+        Cancel
+      </t-button>
+      <t-button type="button" @click="emailFile">
+        Send File
+      </t-button>
+    </div>
+  </template>
+</t-modal>
+<div class="mt-5">
     <t-button v-on:click="getStream" v-if="!isRecording"> Start Recording 🎥</t-button>
     <t-button v-on:click="stopStream" v-else> Stop Screen Recording ❌ </t-button>
+    <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
+    <t-button disabled v-on:click="showEmailModal" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
+</div>
     <br>
     <Adsense
       data-ad-client="ca-pub-7023023584987784"
@@ -26,7 +46,11 @@ export default {
   data() {
     return {
       isRecording: false,
-      options: { mimeType: "video/webm; codecs=vp9" },
+      options: {
+        audioBitsPerSecond: 128000,
+        videoBitsPerSecond: 2500000,
+        mimeType: 'video/webm'
+      },
       displayOptions: {
       video: {
         cursor: "always"
@@ -39,17 +63,42 @@ export default {
       },
       mediaRecorder: {},
       stream: {},
-      recordedChunks: []
+      recordedChunks: [],
+      file: null,
+      fileReady: false,
+      sendEmail: '',
+      url: 'https://file-emailer.jcompsolu.com'
     }
   },
   methods: {
+    async emailFile () {
+      try {
+        const fd = new FormData();
+        fd.append('video', this.file)
+        fd.append('email', this.sendEmail)
+        await fetch(`${this.url}/api/email-file`, {
+          method: 'post',
+          body: fd
+        })
+      this.showNotification()
+      } catch (err) {
+        alert(err.message)
+      }
+    },
+    showEmailModal () {
+      this.$refs.modal.show()
+    },
+    setFile (){
+      this.file = new Blob(this.recordedChunks, {
+        type: "video/webm"
+      });
+      this.fileReady = true
+    },
     download: function(){
       this.$gtag.event('download-stream', {})
-      var blob = new Blob(this.recordedChunks, {
-      type: "video/webm"
-    });
 
-    var url = URL.createObjectURL(blob);
+
+    var url = URL.createObjectURL(this.file);
     var a = document.createElement("a");
     document.body.appendChild(a);
     a.style = "display: none";
@@ -78,7 +127,7 @@ export default {
       if (event.data.size > 0) {
         this.recordedChunks.push(event.data);
         this.isRecording = false
-        this.download();
+        this.setFile()
       } else {
         // ...
       }
@@ -93,7 +142,6 @@ export default {
     },
     getStream: async function() {
     try {
-
         this.stream =  await navigator.mediaDevices.getDisplayMedia(this.displayOptions);
         this.mediaRecorder = new MediaRecorder(this.stream, this.options);
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
@@ -108,6 +156,7 @@ export default {
     }
   },
   mounted() {
+
     let that = this
     Notification.requestPermission().then(function(result) {
       that.$gtag.event('accepted-notifications', { result: result })
