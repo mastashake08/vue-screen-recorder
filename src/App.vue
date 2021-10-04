@@ -13,7 +13,7 @@
       header="Email Recording"
       ref="modal"
     >
-  <t-input :value="this.sendEmail" placeholder="Email Address" name="send-email" />
+  <t-input v-model="sendEmail" placeholder="Email Address" name="send-email" />
   <template v-slot:footer>
     <div class="flex justify-between">
       <t-button type="button" @click="$refs.modal.hide()">
@@ -29,7 +29,7 @@
     <t-button v-on:click="getStream" v-if="!isRecording"> Start Recording 🎥</t-button>
     <t-button v-on:click="stopStream" v-else> Stop Screen Recording ❌ </t-button>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
-    <t-button disabled v-on:click="showEmailModal" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
+    <t-button  v-on:click="$refs.modal.show()" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
     <br>
     <Adsense
@@ -67,7 +67,7 @@ export default {
       file: null,
       fileReady: false,
       sendEmail: '',
-      url: 'https://file-emailer.jcompsolu.com'
+      url: 'https://screen-recorder-micro.jcompsolu.com'
     }
   },
   methods: {
@@ -80,13 +80,11 @@ export default {
           method: 'post',
           body: fd
         })
+      this.$refs.modal.hide()
       this.showNotification()
       } catch (err) {
         alert(err.message)
       }
-    },
-    showEmailModal () {
-      this.$refs.modal.show()
     },
     setFile (){
       this.file = new Blob(this.recordedChunks, {
