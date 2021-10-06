@@ -1,9 +1,14 @@
 <template>
   <div id="app">
     <img alt="J Computer Solutions Logo" src="./assets/logo.png" class="object-contain h-48 w-full">
-    <p>
-    Record your screen and microphone then save/email the file as a video.
-    Perfect for screen recording for clients. Completely client side app and is installable as a PWA!
+    <h2 class="text-sm tracking-wide font-medium text-gray-500 uppercase">Free Online Screen Recorder</h2>
+    <p class="mt-6 text-center text-base font-medium text-gray-500">
+    Free online screen recorder by J Computer Solutions LLC that allows you to
+    record your screen including microphone audio and save the file to your desktop.
+    No download required, use this progressive web app in the browser!
+    J Computer Solutions LLC provides the #1 free online screen capture software! Due to current
+    browser limitations, this software can only be used on desktop. Please ensure you are on a Windows, MacOS or Linux
+    computer using Chrome, Firefox or Safari!
     </p>
     <t-modal
       header="Email Recording"
@@ -175,6 +180,13 @@ export default {
     }
   },
   mounted() {
+    const ua = navigator.userAgent;
+    if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+        alert('You must be on desktop to use this application!')
+    }
+    else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
+        alert('You must be on desktop to use this application!')
+    }
 
     let that = this
     Notification.requestPermission().then(function(result) {
