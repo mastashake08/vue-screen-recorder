@@ -106,9 +106,6 @@ export default {
 
       // And load it:
       videoEl.load();
-      videoEl.addEventListener('loadedmetadata', () => {
-        videoEl.requestPictureInPicture()
-      });
       this.fileReady = true
     },
     download: function(){
