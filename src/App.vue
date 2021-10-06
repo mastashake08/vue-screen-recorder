@@ -2,12 +2,8 @@
   <div id="app">
     <img alt="J Computer Solutions Logo" src="./assets/logo.png" class="object-contain h-48 w-full">
     <p>
-    Record your screen and save the file as a video.
+    Record your screen and microphone then save/email the file as a video.
     Perfect for screen recording for clients. Completely client side app and is installable as a PWA!
-    </p>
-    <p>
-    Currently full system audio is only available in Windows and Chrome OS.
-    In Linux and MacOS only chrome tabs are shared.
     </p>
     <t-modal
       header="Email Recording"
@@ -141,7 +137,12 @@ export default {
     getStream: async function() {
     try {
         this.stream =  await navigator.mediaDevices.getDisplayMedia(this.displayOptions);
-        this.mediaRecorder = new MediaRecorder(this.stream, this.options);
+
+        const audioStream = await navigator.mediaDevices.getUserMedia({audio: true}).catch(e => {throw e});
+        const audioTrack = audioStream.getAudioTracks();
+        // add audio track
+        this.stream.addTrack(audioTrack[0])
+        this.mediaRecorder = new MediaRecorder(this.stream)
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
         this.mediaRecorder.start();
         this.isRecording = true
