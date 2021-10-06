@@ -32,14 +32,14 @@
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
     <t-button  v-on:click="$refs.modal.show()" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
+<Adsense
+  data-ad-client="ca-pub-7023023584987784"
+  data-ad-slot="8876566362">
+</Adsense>
 <div class="mt-5">
   <video class="center" height="500px"  controls  id="video" v-show="fileReady"></video>
 </div>
-    <br>
-    <Adsense
-      data-ad-client="ca-pub-7023023584987784"
-      data-ad-slot="8876566362">
-    </Adsense>
+
   </div>
 </template>
 
