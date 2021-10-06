@@ -28,7 +28,7 @@
     <t-button  v-on:click="$refs.modal.show()" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
 <div class="mt-5">
-  <video class="center" height="500px"  controls autoPictureInPicture id="video" v-show="fileReady"></video>
+  <video class="center" height="500px"  controls  id="video" v-show="fileReady"></video>
 </div>
     <br>
     <Adsense
