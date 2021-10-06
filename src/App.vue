@@ -27,6 +27,9 @@
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
     <t-button  v-on:click="$refs.modal.show()" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
+<div class="mt-5">
+  <video class="center" height="500px"  controls autoPictureInPicture id="video" v-show="fileReady"></video>
+</div>
     <br>
     <Adsense
       data-ad-client="ca-pub-7023023584987784"
@@ -85,6 +88,26 @@ export default {
     setFile (){
       this.file = new Blob(this.recordedChunks, {
         type: "video/webm"
+      });
+      const newObjectUrl = URL.createObjectURL( this.file );
+      const videoEl = document.getElementById('video')
+      // URLs created by `URL.createObjectURL` always use the `blob:` URI scheme: https://w3c.github.io/FileAPI/#dfn-createObjectURL
+      const oldObjectUrl = videoEl.src;
+      if( oldObjectUrl && oldObjectUrl.startsWith('blob:') ) {
+          // It is very important to revoke the previous ObjectURL to prevent memory leaks. Un-set the `src` first.
+          // See https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+
+          videoEl.src = ''; // <-- Un-set the src property *before* revoking the object URL.
+          URL.revokeObjectURL( oldObjectUrl );
+      }
+
+      // Then set the new URL:
+      videoEl.src = newObjectUrl;
+
+      // And load it:
+      videoEl.load();
+      videoEl.addEventListener('loadedmetadata', () => {
+        videoEl.requestPictureInPicture()
       });
       this.fileReady = true
     },
