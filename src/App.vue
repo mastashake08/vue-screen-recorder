@@ -2,7 +2,7 @@
   <div id="app">
     <Adsense
       data-ad-client="ca-pub-7023023584987784"
-      data-ad-slot="8681851590">
+      data-ad-slot="4181685023">
     </Adsense>
     <img alt="J Computer Solutions Logo" src="./assets/logo.png" class="object-contain h-48 w-full">
     <h2 class="text-sm tracking-wide font-medium text-gray-500 uppercase">Free Online Screen Recorder</h2>
