@@ -111,6 +111,10 @@ export default {
 
       // And load it:
       videoEl.load();
+      videoEl.onloadedmetadata = () => {
+        videoEl.requestPictureInPicture()
+      }
+      videoEl.play()
       this.fileReady = true
     },
     download: function(){
