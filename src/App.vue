@@ -31,7 +31,7 @@
   </template>
 </t-modal>
 <div class="mt-5 mb-5">
-    <t-button v-on:click="getStream" v-if="!isRecording"> Start Recording 🎥</t-button>
+    <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord"> Start Recording 🎥</t-button>
     <t-button v-on:click="stopStream" v-else> Stop Screen Recording ❌ </t-button>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
     <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
@@ -53,6 +53,7 @@ export default {
   name: 'App',
   data() {
     return {
+      canRecord: true,
       isRecording: false,
       options: {
         audioBitsPerSecond: 128000,
@@ -191,9 +192,11 @@ export default {
     const ua = navigator.userAgent;
     if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
         alert('You must be on desktop to use this application!')
+        this.canRecord = false
     }
     else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
         alert('You must be on desktop to use this application!')
+        this.canRecord = false
     }
 
     let that = this
