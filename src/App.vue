@@ -1,5 +1,9 @@
 <template>
   <div id="app">
+    <Adsense
+      data-ad-client="ca-pub-7023023584987784"
+      data-ad-slot="8681851590">
+    </Adsense>
     <img alt="J Computer Solutions Logo" src="./assets/logo.png" class="object-contain h-48 w-full">
     <h2 class="text-sm tracking-wide font-medium text-gray-500 uppercase">Free Online Screen Recorder</h2>
     <p class="mt-6 text-center text-base font-medium text-gray-500">
@@ -196,6 +200,9 @@ export default {
     Notification.requestPermission().then(function(result) {
       that.$gtag.event('accepted-notifications', { result: result })
     });
+  },
+  created () {
+    this.$gtag.event('application-started', {})
   }
 }
 </script>

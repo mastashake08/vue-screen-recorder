@@ -5,7 +5,7 @@ import Ads from 'vue-google-adsense'
 import VueGtag from "vue-gtag";
 import "tailwindcss/tailwind.css"
 Vue.use(VueGtag, {
-  config: { id: "2830203221" }
+  config: { id: "UA-68652214-3" }
 });
 
 Vue.use(require('vue-script2'))
