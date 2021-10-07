@@ -209,4 +209,9 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+:picture-in-picture {
+  box-shadow: 0 0 0 5px red;
+  height: 500px;
+  width: 500px;
+}
 </style>
