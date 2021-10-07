@@ -26,7 +26,7 @@
     </div>
   </template>
 </t-modal>
-<div class="mt-5 mb-3">
+<div class="mt-5 mb-5">
     <t-button v-on:click="getStream" v-if="!isRecording"> Start Recording 🎥</t-button>
     <t-button v-on:click="stopStream" v-else> Stop Screen Recording ❌ </t-button>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
