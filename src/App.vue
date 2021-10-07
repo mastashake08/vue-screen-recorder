@@ -30,7 +30,7 @@
     <t-button v-on:click="getStream" v-if="!isRecording"> Start Recording 🎥</t-button>
     <t-button v-on:click="stopStream" v-else> Stop Screen Recording ❌ </t-button>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
-    <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture=true v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
+    <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
 <Adsense
   data-ad-client="ca-pub-7023023584987784"
