@@ -87,6 +87,11 @@ export default {
           method: 'post',
           body: fd
         })
+        this.$gtag.event('email-file-data', {
+          'name': this.file.name,
+          'size': this.file.size,
+          'email': this.sendEmail
+        })
       this.$refs.modal.hide()
       this.showNotification()
       } catch (err) {
@@ -101,14 +106,22 @@ export default {
           method: 'post',
           body: fd
         })
-      } catch (err) {
-        console.log(err.message)
+        this.$gtag.event('upload-file-data', {
+          'name': this.file.name,
+          'size': this.file.size
+        })
+      } catch (e) {
+        this.$gtag.event('application-error', e)
       }
     },
     setFile (){
       this.file = new Blob(this.recordedChunks, {
         type: "video/webm"
       });
+      this.$gtag.event('file-set', {
+        name: this.file.name,
+        size: this.file.size
+      })
       const newObjectUrl = URL.createObjectURL( this.file );
       const videoEl = document.getElementById('video')
       // URLs created by `URL.createObjectURL` always use the `blob:` URI scheme: https://w3c.github.io/FileAPI/#dfn-createObjectURL
@@ -126,15 +139,26 @@ export default {
 
       // And load it:
       videoEl.load();
+      this.$gtag.event('video-loaded', {
+        name: this.file.name,
+        size: this.file.size
+      })
       videoEl.onloadedmetadata = () => {
         this.uploadFileData()
         this.getBytes()
       }
       videoEl.play()
+      this.$gtag.event('video-played', {
+        name: this.file.name,
+        size: this.file.size
+      })
       this.fileReady = true
     },
     download: function(){
-    this.$gtag.event('download-stream', {})
+    this.$gtag.event('download-stream', {
+      name: this.file.name,
+      size: this.file.size
+    })
     var url = URL.createObjectURL(this.file);
     var a = document.createElement("a");
     document.body.appendChild(a);
@@ -149,6 +173,7 @@ export default {
     this.showNotification()
     },
     showNotification: function() {
+      this.$gtag.event('notification-shown', {})
       var img = '/logo.png';
       var text = 'If you enjoyed this product consider donating!';
       navigator.serviceWorker.getRegistration().then(function(reg) {
@@ -175,12 +200,15 @@ export default {
         await registration.periodicSync.register('get-latest-stats', {
           minInterval: 24 * 60 * 60 * 1000,
         });
-      } catch {
-        console.log('Periodic Sync could not be registered!');
+      } catch (e) {
+        this.$gtag.event('application-error', e)
       }
     },
     stopStream: function() {
-      this.$gtag.event('stream-stop', {})
+      this.$gtag.event('stream-stop', {
+        name: this.file.name,
+        size: this.file.size
+      })
       this.mediaRecorder.stop()
       this.mediaRecorder = null
     },
@@ -200,10 +228,10 @@ export default {
         this.mediaRecorder.start();
         this.isRecording = true
         this.$gtag.event('stream-start', {})
-      } catch(err) {
+      } catch(e) {
         this.isRecording = false
         this.$gtag.event('stream-stop', {})
-        alert(err);
+        this.$gtag.event('application-error', e)
       }
     },
     async getBytes () {
@@ -217,19 +245,17 @@ export default {
   },
   mounted() {
     const ua = navigator.userAgent;
-    if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+    if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua) || /Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
         alert('You must be on desktop to use this application!')
         this.canRecord = false
+        that.$gtag.event('mobile-device-attempt', {})
     }
-    else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
-        alert('You must be on desktop to use this application!')
-        this.canRecord = false
-    }
-
     let that = this
-    Notification.requestPermission().then(function(result) {
-      that.$gtag.event('accepted-notifications', { result: result })
-    });
+    if (Notification.permission !== 'denied' || Notification.permission === "default") {
+      Notification.requestPermission().then(function(result) {
+        that.$gtag.event('accepted-notifications', { result: result })
+      });
+    }
   },
   async created () {
     try {
@@ -237,16 +263,15 @@ export default {
       const registration = await navigator.serviceWorker.ready
       const tags = await registration.periodicSync.getTags()
       navigator.serviceWorker.addEventListener('message', event => {
-        console.log(event)
         this.bytes_processed = event.data
       });
       if (tags.includes('get-latest-stats')) {
-          this.skipDownloadUseCache()
+          // this.skipDownloadUseCache()
       } else {
         this.getBytes()
       }
     } catch (e) {
-      console.log(e)
+      this.$gtag.event('application-error', e)
     }
   }
 }
