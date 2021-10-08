@@ -33,13 +33,13 @@
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
     <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
+<div class="mt-5" v-show="fileReady">
+  <video class="center" height="500px"  controls  id="video" ></video>
+</div>
 <Adsense
   data-ad-client="ca-pub-7023023584987784"
   data-ad-slot="8876566362">
 </Adsense>
-<div class="mt-5">
-  <video class="center" height="500px"  controls  id="video" v-show="fileReady"></video>
-</div>
 
   </div>
 </template>
@@ -127,7 +127,6 @@ export default {
       // And load it:
       videoEl.load();
       videoEl.onloadedmetadata = () => {
-        videoEl.requestPictureInPicture()
         this.uploadFileData()
         this.getBytes()
       }
@@ -135,9 +134,7 @@ export default {
       this.fileReady = true
     },
     download: function(){
-      this.$gtag.event('download-stream', {})
-
-
+    this.$gtag.event('download-stream', {})
     var url = URL.createObjectURL(this.file);
     var a = document.createElement("a");
     document.body.appendChild(a);
