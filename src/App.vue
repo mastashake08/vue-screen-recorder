@@ -121,7 +121,6 @@ export default {
       this.file = new Blob(this.recordedChunks, {
         type: "video/webm"
       });
-      console.log(this.file)
       this.$gtag.event('file-set', {
         name: this.file.name,
         size: this.file.size
@@ -214,7 +213,9 @@ export default {
       this.$gtag.event('stream-stop', {})
       this.mediaRecorder.stop()
       this.mediaRecorder = null
-      this.stream.getVideoTracks()[0].stop()
+      this.stream.getTracks()
+      .forEach(track => track.stop())
+      this.stream = null
     },
     getStream: async function() {
     try {
