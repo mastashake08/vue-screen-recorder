@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <img alt="Screen Record Pro" src="./assets/logo.svg" class="object-contain h-80 w-full">
+    <img alt="Screen Record Pro" src="./assets/logo.svg" class="animate-fade-slow object-contain h-80 w-full">
     <h2 class="text-sm tracking-wide font-medium text-gray-500 uppercase">Free Online Screen Recorder</h2>
     <p class="text-base font-light leading-relaxed mt-0 mb-4 text-gray-800">
     Free online screen recorder by J Computer Solutions LLC that allows you to
@@ -10,7 +10,7 @@
     browser limitations, this software can only be used on desktop. Please ensure you are on a Windows, MacOS or Linux
     computer using Chrome, Firefox or Safari!
     </p>
-    <h1 class="text-3xl font-large text-gray-500 uppercase">To Date We Have Processed: <strong class="text-3xl font-large text-red-500">{{bytes_processed}}</strong> bytes worth of video data!</h1>
+    <h1 class="text-3xl font-large text-gray-500 uppercase">To Date We Have Processed: <strong class="animate-pulse text-3xl font-large text-red-500">{{bytes_processed}}</strong> bytes worth of video data!</h1>
     <t-modal
       header="Email Recording"
       ref="modal"
