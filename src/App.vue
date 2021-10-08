@@ -10,7 +10,7 @@
     browser limitations, this software can only be used on desktop. Please ensure you are on a Windows, MacOS or Linux
     computer using Chrome, Firefox or Safari!
     </p>
-    <h3>To Date We Have Processed {{bytes_processed}} bytes worth of video!</h3>
+    <h1 class="text-3xl font-large text-gray-500 uppercase">To Date We Have Processed: <strong class="text-3xl font-large text-red-500">{{bytes_processed}}</strong> bytes worth of video data!</h1>
     <t-modal
       header="Email Recording"
       ref="modal"
