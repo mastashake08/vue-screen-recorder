@@ -1,8 +1,8 @@
 {
     "dir": "ltr",
     "lang": "en",
-    "name": "Screen Recorder Pro",
-    "short_name": "Screen Recorder Pro",
+    "name": "Screen Record Pro",
+    "short_name": "Screen Record Pro",
     "scope": "/",
     "display": "standalone",
     "start_url": "https://recorder.jcompsolu.com/",

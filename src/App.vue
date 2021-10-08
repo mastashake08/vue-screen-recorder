@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <img alt="Screen Recorder Pro" src="./assets/logo.svg" class="object-contain h-80 w-full">
+    <img alt="Screen Record Pro" src="./assets/logo.svg" class="object-contain h-80 w-full">
     <h2 class="text-sm tracking-wide font-medium text-gray-500 uppercase">Free Online Screen Recorder</h2>
     <p class="text-base font-light leading-relaxed mt-0 mb-4 text-gray-800">
     Free online screen recorder by J Computer Solutions LLC that allows you to
@@ -152,7 +152,7 @@ export default {
       var img = '/logo.png';
       var text = 'If you enjoyed this product consider donating!';
       navigator.serviceWorker.getRegistration().then(function(reg) {
-        reg.showNotification('Screen Recorder', { body: text, icon: img, requireInteraction: true,
+        reg.showNotification('Screen Record Pro', { body: text, icon: img, requireInteraction: true,
         actions: [
             {action: 'donate', title: 'Donate',icon: 'logo.png'},
             {action: 'close', title: 'Close',icon: 'logo.png'}
