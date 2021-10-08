@@ -1,7 +1,7 @@
 // This is the "Offline copy of assets" service worker
 
 const CACHE = "recorder-offline";
-
+const QUEUE_NAME = "bgSyncQueue";
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
 self.addEventListener("message", (event) => {
@@ -10,10 +10,17 @@ self.addEventListener("message", (event) => {
   }
 });
 
+const bgSyncPlugin = new workbox.backgroundSync.BackgroundSyncPlugin(QUEUE_NAME, {
+  maxRetentionTime: 24 * 60 // Retry for max of 24 Hours (specified in minutes)
+});
+
 workbox.routing.registerRoute(
   new RegExp('/*'),
   new workbox.strategies.StaleWhileRevalidate({
-    cacheName: CACHE
+    cacheName: CACHE,
+    plugins: [
+      bgSyncPlugin
+    ]
   })
 );
 self.addEventListener('notificationclick', function(event) {

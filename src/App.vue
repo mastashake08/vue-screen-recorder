@@ -1,12 +1,8 @@
 <template>
   <div id="app">
-    <Adsense
-      data-ad-client="ca-pub-7023023584987784"
-      data-ad-slot="4181685023">
-    </Adsense>
-    <img alt="J Computer Solutions Logo" src="./assets/logo.png" class="object-contain h-48 w-full">
+    <img alt="Screen Recorder Pro" src="./assets/logo.svg" class="object-contain h-80 w-full">
     <h2 class="text-sm tracking-wide font-medium text-gray-500 uppercase">Free Online Screen Recorder</h2>
-    <p class="mt-6 text-center text-base font-medium text-gray-500">
+    <p class="text-base font-light leading-relaxed mt-0 mb-4 text-gray-800">
     Free online screen recorder by J Computer Solutions LLC that allows you to
     record your screen including microphone audio and save the file to your desktop.
     No download required, use this progressive web app in the browser!
