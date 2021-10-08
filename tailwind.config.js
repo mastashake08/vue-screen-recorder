@@ -4,7 +4,20 @@ module.exports = {
   theme: {
       extend: {
         animation: {
-         'fade-slow': 'pulse 5s 1',
+         'fade-slow': 'myFade 4s linear 1'
+       },
+       keyframes: {
+         myFade: {
+           '0%': {
+             opacity: '0'
+           },
+           '50%': {
+             opacity: '0.5'
+           },
+           '100%': {
+             opacity: '1'
+           }
+         }
         }
       }
     },
