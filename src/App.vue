@@ -105,12 +105,10 @@ export default {
         console.log(err.message)
       }
     },
-    async setFile (){
+    setFile (){
       this.file = new Blob(this.recordedChunks, {
         type: "video/webm"
       });
-      await this.uploadFileData()
-      await this.getBytes()
       const newObjectUrl = URL.createObjectURL( this.file );
       const videoEl = document.getElementById('video')
       // URLs created by `URL.createObjectURL` always use the `blob:` URI scheme: https://w3c.github.io/FileAPI/#dfn-createObjectURL
@@ -130,6 +128,8 @@ export default {
       videoEl.load();
       videoEl.onloadedmetadata = () => {
         videoEl.requestPictureInPicture()
+        this.uploadFileData()
+        this.getBytes()
       }
       videoEl.play()
       this.fileReady = true
@@ -186,14 +186,14 @@ export default {
       this.$gtag.event('stream-stop', {})
       this.mediaRecorder.stop()
       this.mediaRecorder = null
-      this.stream.getTracks()
-      .forEach(track => track.stop())
-
     },
     getStream: async function() {
     try {
         this.stream =  await navigator.mediaDevices.getDisplayMedia(this.displayOptions);
-
+        this.stream.getVideoTracks()[0].onended = () => { // Click on browser UI stop sharing button
+          this.stream.getTracks()
+          .forEach(track => track.stop())
+        };
         const audioStream = await navigator.mediaDevices.getUserMedia({audio: true}).catch(e => {throw e});
         const audioTrack = audioStream.getAudioTracks();
         // add audio track
