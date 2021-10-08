@@ -211,6 +211,7 @@ export default {
       this.$gtag.event('stream-stop', {})
       this.mediaRecorder.stop()
       this.mediaRecorder = null
+      this.stream.getVideoTracks()[0].stop()
     },
     getStream: async function() {
     try {
