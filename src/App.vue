@@ -121,6 +121,7 @@ export default {
       this.file = new Blob(this.recordedChunks, {
         type: "video/webm"
       });
+      console.log(this.file)
       this.$gtag.event('file-set', {
         name: this.file.name,
         size: this.file.size
@@ -150,11 +151,13 @@ export default {
         this.uploadFileData()
         this.getBytes()
       }
-      videoEl.play()
-      this.$gtag.event('video-played', {
-        name: this.file.name,
-        size: this.file.size
-      })
+      videoEl.onPlay = () => {
+        this.$gtag.event('video-played', {
+          name: this.file.name,
+          size: this.file.size
+        })
+      }
+
       this.fileReady = true
     },
     download: function(){
@@ -253,9 +256,23 @@ export default {
     }
     let that = this
     if (Notification.permission !== 'denied' || Notification.permission === "default") {
-      Notification.requestPermission().then(function(result) {
-        that.$gtag.event('accepted-notifications', { result: result })
-      });
+      try {
+        Notification.requestPermission().then(function(result) {
+          that.$gtag.event('accepted-notifications', { result: result })
+        });
+      } catch (error) {
+          // Safari doesn't return a promise for requestPermissions and it
+          // throws a TypeError. It takes a callback as the first argument
+          // instead.
+          if (error instanceof TypeError) {
+              Notification.requestPermission((result) => {
+                that.$gtag.event('accepted-notifications', { result: result })
+              });
+          } else {
+              throw error;
+          }
+      }
+
     }
   },
   async created () {
@@ -273,6 +290,7 @@ export default {
       }
     } catch (e) {
       this.$gtag.event('application-error', e)
+      this.getBytes()
     }
   }
 }
