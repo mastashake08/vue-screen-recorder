@@ -40,14 +40,17 @@
   data-ad-client="ca-pub-7023023584987784"
   data-ad-slot="8876566362">
 </Adsense>
-
+<footer>
+  <cookie-law theme="base"></cookie-law>
+</footer>
   </div>
 </template>
 
 <script>
-
+ import CookieLaw from 'vue-cookie-law'
 export default {
   name: 'App',
+  components: { CookieLaw },
   data() {
     return {
       canRecord: true,
