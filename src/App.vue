@@ -10,6 +10,7 @@
     browser limitations, this software can only be used on desktop. Please ensure you are on a Windows, MacOS or Linux
     computer using Chrome, Firefox or Safari!
     </p>
+    <h3>To Date We Have Processed {{bytes_processed}} bytes worth of video!</h3>
     <t-modal
       header="Email Recording"
       ref="modal"
@@ -72,7 +73,8 @@ export default {
       file: null,
       fileReady: false,
       sendEmail: '',
-      url: 'https://screen-recorder-micro.jcompsolu.com'
+      url: 'https://screen-recorder-micro.jcompsolu.com',
+      bytes_processed: 0
     }
   },
   methods: {
@@ -91,10 +93,24 @@ export default {
         alert(err.message)
       }
     },
-    setFile (){
+    async uploadFileData () {
+      try {
+        const fd = new FormData();
+        fd.append('video', this.file)
+        await fetch(`${this.url}/api/upload-file-data`, {
+          method: 'post',
+          body: fd
+        })
+      } catch (err) {
+        console.log(err.message)
+      }
+    },
+    async setFile (){
       this.file = new Blob(this.recordedChunks, {
         type: "video/webm"
       });
+      await this.uploadFileData()
+      await this.getBytes()
       const newObjectUrl = URL.createObjectURL( this.file );
       const videoEl = document.getElementById('video')
       // URLs created by `URL.createObjectURL` always use the `blob:` URI scheme: https://w3c.github.io/FileAPI/#dfn-createObjectURL
@@ -156,6 +172,16 @@ export default {
         // ...
       }
     },
+    async registerPeriodicNewsCheck () {
+      const registration = await navigator.serviceWorker.ready;
+      try {
+        await registration.periodicSync.register('get-latest-stats', {
+          minInterval: 24 * 60 * 60 * 1000,
+        });
+      } catch {
+        console.log('Periodic Sync could not be registered!');
+      }
+    },
     stopStream: function() {
       this.$gtag.event('stream-stop', {})
       this.mediaRecorder.stop()
@@ -182,7 +208,15 @@ export default {
         this.$gtag.event('stream-stop', {})
         alert(err);
       }
+    },
+    async getBytes () {
+      const result = await fetch(`${this.url}/api/get-stats`)
+      this.bytes_processed = await result.json()
+    },
+    skipDownloadUseCache () {
+      this.bytes_processed = localStorage.bytes_processed
     }
+
   },
   mounted() {
     const ua = navigator.userAgent;
@@ -200,8 +234,23 @@ export default {
       that.$gtag.event('accepted-notifications', { result: result })
     });
   },
-  created () {
-    this.$gtag.event('application-started', {})
+  async created () {
+    try {
+      this.$gtag.event('application-started', {})
+      const registration = await navigator.serviceWorker.ready
+      const tags = await registration.periodicSync.getTags()
+      navigator.serviceWorker.addEventListener('message', event => {
+        console.log(event)
+        this.bytes_processed = event.data
+      });
+      if (tags.includes('get-latest-stats')) {
+          this.skipDownloadUseCache()
+      } else {
+        this.getBytes()
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 }
 </script>
