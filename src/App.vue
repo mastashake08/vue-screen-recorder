@@ -208,10 +208,7 @@ export default {
       }
     },
     stopStream: function() {
-      this.$gtag.event('stream-stop', {
-        name: this.file.name,
-        size: this.file.size
-      })
+      this.$gtag.event('stream-stop', {})
       this.mediaRecorder.stop()
       this.mediaRecorder = null
     },
