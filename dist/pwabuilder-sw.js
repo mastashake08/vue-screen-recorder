@@ -3,8 +3,14 @@
 const CACHE = "recorder-offline";
 const QUEUE_NAME = "bgSyncQueue";
 const urlsToCache = [
+  '/js/app.js',
+  '/js/app.map',
+  '/js/chunk-vendors.map',
+  '/js/chunk-vendors.js',
+  '/img/logo.5c33d4ac.svg',
+  '/favicon.ico',
+  '/manifest.json',
   '/',
-  '/logo.svg'
 ]
 const API_URL = "https://screen-recorder-micro.jcompsolu.com/api"
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
@@ -18,17 +24,13 @@ async function fetchLatestStats (event) {
 }
 
 self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    caches.match(event.request)
-      .then(function(response) {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      }
-    )
-  );
+ console.log(event.request.url);
+
+ event.respondWith(
+   caches.match(event.request).then(function(response) {
+     return response || fetch(event.request);
+   })
+ );
 });
 
 self.addEventListener("message", (event) => {
@@ -36,7 +38,14 @@ self.addEventListener("message", (event) => {
     self.skipWaiting();
   }
 });
-
+self.addEventListener('install', (e) => {
+  console.log('[Service Worker] Install');
+  e.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    console.log('[Service Worker] Caching all: app shell and content');
+    await cache.addAll(urlsToCache);
+  })());
+});
 
 self.addEventListener('periodicsync', event => {
   if (event.tag == 'get-latest-stats') {
@@ -50,10 +59,7 @@ const bgSyncPlugin = new workbox.backgroundSync.BackgroundSyncPlugin(QUEUE_NAME,
 workbox.routing.registerRoute(
   new RegExp('/*'),
   new workbox.strategies.StaleWhileRevalidate({
-    cacheName: CACHE,
-    plugins: [
-      bgSyncPlugin
-    ]
+    cacheName: CACHE
   })
 );
 self.addEventListener('notificationclick', function(event) {
