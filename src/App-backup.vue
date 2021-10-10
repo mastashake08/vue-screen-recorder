@@ -28,8 +28,11 @@
   </template>
 </t-modal>
 <div class="mt-5 mb-5">
+  <t-button v-on:click="streamToYoutube"> Stream Recording To YouTube ❌ </t-button>
     <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord"> Start Recording 🎥</t-button>
-    <t-button v-on:click="stopStream" v-else> Stop Screen Recording ❌ </t-button>
+    <div v-else>
+      <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
+      </div>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
     <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
@@ -48,6 +51,7 @@
 
 <script>
  import CookieLaw from 'vue-cookie-law'
+ import Youtube from './classes/Youtube'
 export default {
   name: 'App',
   components: { CookieLaw },
@@ -81,6 +85,10 @@ export default {
     }
   },
   methods: {
+    async streamToYoutube () {
+      const yt = new Youtube(this.url)
+      console.log(yt)
+    },
     async emailFile () {
       try {
         const fd = new FormData();
@@ -114,7 +122,7 @@ export default {
           'size': this.file.size
         })
       } catch (e) {
-        this.$gtag.event('application-error', e)
+        this.$gtag.exception('application-error', e)
       }
     },
     setFile (){
@@ -122,8 +130,8 @@ export default {
         type: "video/webm"
       });
       this.$gtag.event('file-set', {
-        name: this.file.name,
-        size: this.file.size
+        'event_category' : 'Files',
+        'event_label' : 'File Set'
       })
       const newObjectUrl = URL.createObjectURL( this.file );
       const videoEl = document.getElementById('video')
@@ -142,28 +150,24 @@ export default {
 
       // And load it:
       videoEl.load();
-      this.$gtag.event('video-loaded', {
-        name: this.file.name,
-        size: this.file.size
+      this.$gtag.event('file-loaded', {
+        'event_category' : 'Files',
+        'event_label' : 'File Loaded'
       })
       videoEl.onloadedmetadata = () => {
         this.uploadFileData()
         this.getBytes()
       }
       videoEl.onPlay = () => {
-        this.$gtag.event('video-played', {
-          name: this.file.name,
-          size: this.file.size
+        this.$gtag.event('file-played', {
+          'event_category' : 'Files',
+          'event_label' : 'File Played'
         })
       }
 
       this.fileReady = true
     },
     download: function(){
-    this.$gtag.event('download-stream', {
-      name: this.file.name,
-      size: this.file.size
-    })
     var url = URL.createObjectURL(this.file);
     var a = document.createElement("a");
     document.body.appendChild(a);
@@ -176,6 +180,10 @@ export default {
     window.URL.revokeObjectURL(url);
     this.recordedChunks = []
     this.showNotification()
+    this.$gtag.event('file-downloaded', {
+      'event_category' : 'Files',
+      'event_label' : 'File Downloaded'
+    })
     },
     showNotification: function() {
       this.$gtag.event('notification-shown', {})
@@ -206,16 +214,19 @@ export default {
           minInterval: 24 * 60 * 60 * 1000,
         });
       } catch (e) {
-        this.$gtag.event('application-error', e)
+        this.$gtag.exception('application-error', e)
       }
     },
     stopStream: function() {
-      this.$gtag.event('stream-stop', {})
       this.mediaRecorder.stop()
       this.mediaRecorder = null
       this.stream.getTracks()
       .forEach(track => track.stop())
       this.stream = null
+      this.$gtag.event('stream-stop', {
+        'event_category' : 'Streams',
+        'event_label' : 'Stream Stopped'
+      })
     },
     getStream: async function() {
     try {
@@ -232,11 +243,13 @@ export default {
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
         this.mediaRecorder.start();
         this.isRecording = true
-        this.$gtag.event('stream-start', {})
+        this.$gtag.event('stream-start', {
+          'event_category' : 'Streams',
+          'event_label' : 'Stream Started'
+        })
       } catch(e) {
         this.isRecording = false
-        this.$gtag.event('stream-stop', {})
-        this.$gtag.event('application-error', e)
+        this.$gtag.exception('application-error', e)
       }
     },
     async getBytes () {
@@ -249,17 +262,22 @@ export default {
 
   },
   mounted() {
+    this.$gtag.pageview("/");
     const ua = navigator.userAgent;
     if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua) || /Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
         alert('You must be on desktop to use this application!')
         this.canRecord = false
-        that.$gtag.event('mobile-device-attempt', {})
+        this.$gtag.exception('mobile-device-attempt', {})
     }
     let that = this
     if (Notification.permission !== 'denied' || Notification.permission === "default") {
       try {
         Notification.requestPermission().then(function(result) {
-          that.$gtag.event('accepted-notifications', { result: result })
+          that.$gtag.event('accepted-notifications', {
+            'event_category' : 'Notifications',
+            'event_label' : 'Notification accepted'
+          })
+          console.log(result)
         });
       } catch (error) {
           // Safari doesn't return a promise for requestPermissions and it
@@ -267,10 +285,15 @@ export default {
           // instead.
           if (error instanceof TypeError) {
               Notification.requestPermission((result) => {
-                that.$gtag.event('accepted-notifications', { result: result })
+                that.$gtag.event('accepted-notifications', {
+                  'event_category' : 'Notifications',
+                  'event_label' : 'Notification accepted'
+                })
+                console.log(result)
               });
           } else {
-              throw error;
+            this.$gtag.exception('notification-error', error)
+            throw error;
           }
       }
 
@@ -278,7 +301,6 @@ export default {
   },
   async created () {
     try {
-      this.$gtag.event('application-started', {})
       const registration = await navigator.serviceWorker.ready
       const tags = await registration.periodicSync.getTags()
       navigator.serviceWorker.addEventListener('message', event => {
@@ -290,7 +312,7 @@ export default {
         this.getBytes()
       }
     } catch (e) {
-      this.$gtag.event('application-error', e)
+      this.$gtag.exception('application-error', e)
       this.getBytes()
     }
   }
