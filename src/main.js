@@ -15,9 +15,7 @@ Vue.use(VueGtag, {
 Vue.use(require('vue-script2'))
 
 Vue.use(Ads.Adsense)
-const router = new VueRouter({
-  routes // short for `routes: routes`
-})
+
 const settings = {
   TInput: {
     classes: 'form-input border-2 text-gray-700',
@@ -55,9 +53,12 @@ Vue.use(VueTailwind, settings)
 Vue.config.productionTip = false
 Vue.use(VueRouter)
 const routes = [
-  { path: '/', component: App },
-  { path: '/privacy', component: Privacy }
+  { path: '/', name: 'home', component: App },
+  { path: '/privacy', name: 'privacy', component: Privacy }
 ]
+const router = new VueRouter({
+  routes // short for `routes: routes`
+})
 new Vue({
   router,
 }).$mount('#app')
