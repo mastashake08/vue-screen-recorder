@@ -28,7 +28,8 @@
   </template>
 </t-modal>
 <div class="mt-5 mb-5">
-  <t-button v-on:click="streamToYoutube"> Stream Recording To YouTube ❌ </t-button>
+  <t-button v-on:click="connectToYoutube" v-if="!youtube_ready" class="mr-5"> Stream Recording To YouTube  </t-button>
+  <t-button v-on:click="streamToYouTube" v-else> Start Stream </t-button>
     <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord"> Start Recording 🎥</t-button>
     <div v-else>
       <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
@@ -51,12 +52,13 @@
 
 <script>
  import CookieLaw from 'vue-cookie-law'
- import Youtube from '../classes/Youtube'
+ import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'Home',
   components: { CookieLaw },
   data() {
     return {
+      youtube_ready: false,
       canRecord: true,
       isRecording: false,
       options: {
@@ -82,19 +84,12 @@ export default {
       sendEmail: '',
       url: 'https://screen-recorder-micro.jcompsolu.com',
       bytes_processed: 0,
-      youtube: {}
     }
   },
   methods: {
-    async streamToYoutube () {
-      const win = window.open(`${this.url}/login/youtube`, "YouTube Login", 'width=800, height=600');
-      win.addEventListener("beforeunload", function(e) {
-          e.preventDefault()
-          console.log('unloading')
-          // Do we trust the sender of this message?  (might be
-          // different from what we originally opened, for example).
-          this.youtube = new Youtube(localStorage.youtube_token)
-        })
+    ...mapActions(['setYouTube', 'streamToYouTube', 'getBroadcasts']),
+    async connectToYoutube () {
+      window.open(`${this.url}/login/youtube`, "YouTube Login", 'width=800, height=600');
     },
     async emailFile () {
       try {
@@ -269,6 +264,14 @@ export default {
 
   },
   mounted() {
+    const ctx = this
+    window.addEventListener("message", function (e) {
+      if (typeof e.data.youtube_token !== 'undefined') {
+        console.log(e.data.youtube_token)
+        ctx.setYouTube(e.data.youtube_token)
+        ctx.youtube_ready = true
+      }
+    })
     this.$gtag.pageview("/");
     const ua = navigator.userAgent;
     if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua) || /Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
@@ -306,9 +309,16 @@ export default {
 
     }
   },
+  computed: {
+    ...mapGetters(['getYoutube'])
+  },
   async created () {
     try {
-
+      if(localStorage.youtube_key != null) {
+        this.setYouTube(localStorage.youtube_key)
+        console.log(this.getBroadcasts())
+        this.youtube_ready = true
+      }
       const registration = await navigator.serviceWorker.ready
       const tags = await registration.periodicSync.getTags()
       navigator.serviceWorker.addEventListener('message', event => {

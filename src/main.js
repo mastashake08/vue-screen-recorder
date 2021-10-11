@@ -5,6 +5,7 @@ import Ads from 'vue-google-adsense'
 import VueGtag from "vue-gtag";
 import "tailwindcss/tailwind.css"
 import router from './router'
+import store from './store'
 Vue.use(VueGtag, {
   config: { id: "UA-68652214-3" }
 });
@@ -50,5 +51,6 @@ Vue.config.productionTip = false
 
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')

@@ -1,6 +1,7 @@
 export default class Youtube {
   constructor (token) {
     this.token = token
+    this.broadcasts = []
   }
   gup(url, name) {
   name = name.replace(/[/,"\\").replace(/[\]]/,"\\");
@@ -13,6 +14,21 @@ export default class Youtube {
                 return results[1];
         }
   createNewLiveStream () {}
+  async getBroadcasts () {
+    try {
+      const res = await fetch('https://www.googleapis.com/youtube/v3/liveBroadcasts?broadcastStatus=all', {
+        headers: {
+          'Authorization': `Bearer ${this.token}`
+        }
+      })
+      const results = await res.json()
+      this.broadcasts = results.items
+      console.log(this.broadcasts)
+      return results
+    } catch (e) {
+      console.log(e)
+    }
+  }
   createBroadcast () {}
   bindBroadCast () {}
   endBroadcast() {}

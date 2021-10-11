@@ -8,11 +8,19 @@
   </div>
 </template>
 <script>
+import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'Success',
-  created () {
+  mounted () {
     window.localStorage.setItem('youtube_key', this.$route.query.token)
+    window.opener.postMessage({youtube_token: this.$route.query.token}, '*')
     window.close()
+  },
+  computed: {
+    ...mapGetters(['getYoutube'])
+  },
+  methods : {
+    ...mapActions(['setYouTube'])
   }
 }
 </script>
