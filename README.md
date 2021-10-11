@@ -1,4 +1,5 @@
 # Screen Record Pro
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/mastashake08/vue-screen-recorder/graphs/commit-activity)
 [![Website recorder.jcompsolu.com](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://recorder.jcompsolu.com/)
