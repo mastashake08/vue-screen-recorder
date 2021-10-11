@@ -1,26 +1,6 @@
 export default class Youtube {
-  constructor (url) {
-    var win =   window.open(`${url}/login/youtube`, "windowname1", 'width=800, height=600');
-    var pollTimer = window.setInterval(function() {
-        try {
-          console.log(window.location);
-                if(window.location.hash && window.location.hash.substring(1) !== 'about:blank' ) {
-                  console.log(win);
-                  window.clearInterval(pollTimer);
-                    var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
-                    this.token = hash;
-                    console.log(this.token)
-                    win.close();
-                } else {
-                    // No hash found
-                    console.log('No Hash')
-                }
-
-
-        } catch(e) {
-          alert(e.message)
-        }
-    }, 500);
+  constructor (token) {
+    this.token = token
   }
   gup(url, name) {
   name = name.replace(/[/,"\\").replace(/[\]]/,"\\");

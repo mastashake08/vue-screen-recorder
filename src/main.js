@@ -1,13 +1,10 @@
 import Vue from 'vue'
 import App from './App.vue'
-import Privacy from './Privacy.vue'
 import VueTailwind from 'vue-tailwind'
 import Ads from 'vue-google-adsense'
 import VueGtag from "vue-gtag";
 import "tailwindcss/tailwind.css"
-import VueRouter from 'vue-router'
-
-
+import router from './router'
 Vue.use(VueGtag, {
   config: { id: "UA-68652214-3" }
 });
@@ -15,7 +12,6 @@ Vue.use(VueGtag, {
 Vue.use(require('vue-script2'))
 
 Vue.use(Ads.Adsense)
-
 const settings = {
   TInput: {
     classes: 'form-input border-2 text-gray-700',
@@ -51,14 +47,8 @@ TButton: {
 
 Vue.use(VueTailwind, settings)
 Vue.config.productionTip = false
-Vue.use(VueRouter)
-const routes = [
-  { path: '/', name: 'home', component: App },
-  { path: '/privacy', name: 'privacy', component: Privacy }
-]
-const router = new VueRouter({
-  routes // short for `routes: routes`
-})
+
 new Vue({
   router,
+  render: h => h(App)
 }).$mount('#app')

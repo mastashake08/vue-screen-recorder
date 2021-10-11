@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <img alt="Screen Record Pro" src="./assets/logo.svg" class="animate-fade-slow object-contain h-80 w-full">
+    <img alt="Screen Record Pro" src="../assets/logo.svg" class="animate-fade-slow object-contain h-80 w-full">
     <h2 class="text-sm tracking-wide font-medium text-gray-500 uppercase">Free Online Screen Recorder</h2>
     <p class="text-base font-light leading-relaxed mt-0 mb-4 text-gray-800">
     Free online screen recorder by J Computer Solutions LLC that allows you to
@@ -51,9 +51,9 @@
 
 <script>
  import CookieLaw from 'vue-cookie-law'
- import Youtube from './classes/Youtube'
+ import Youtube from '../classes/Youtube'
 export default {
-  name: 'App',
+  name: 'Home',
   components: { CookieLaw },
   data() {
     return {
@@ -81,13 +81,20 @@ export default {
       fileReady: false,
       sendEmail: '',
       url: 'https://screen-recorder-micro.jcompsolu.com',
-      bytes_processed: 0
+      bytes_processed: 0,
+      youtube: {}
     }
   },
   methods: {
     async streamToYoutube () {
-      const yt = new Youtube(this.url)
-      console.log(yt)
+      const win = window.open(`${this.url}/login/youtube`, "YouTube Login", 'width=800, height=600');
+      win.addEventListener("beforeunload", function(e) {
+          e.preventDefault()
+          console.log('unloading')
+          // Do we trust the sender of this message?  (might be
+          // different from what we originally opened, for example).
+          this.youtube = new Youtube(localStorage.youtube_token)
+        })
     },
     async emailFile () {
       try {
@@ -301,6 +308,7 @@ export default {
   },
   async created () {
     try {
+
       const registration = await navigator.serviceWorker.ready
       const tags = await registration.periodicSync.getTags()
       navigator.serviceWorker.addEventListener('message', event => {
