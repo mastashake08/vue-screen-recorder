@@ -12,7 +12,7 @@ export default new Vuex.Store({
       state.yt = new Youtube(token)
     },
     streamToYouTube (state) {
-      state.yt.createNewLiveStream()
+      return state.yt.createNewLiveStream()
     },
     getBroadcasts (state) {
       return state.yt.getBroadcasts()

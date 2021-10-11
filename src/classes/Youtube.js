@@ -13,23 +13,51 @@ export default class Youtube {
             else
                 return results[1];
         }
+  async uploadVideo () {
+    /*
+    snippet.title
+snippet.description
+snippet.tags[]
+snippet.categoryId
+snippet.defaultLanguage
+localizations.(key)
+localizations.(key).title
+localizations.(key).description
+status.embeddable
+status.license
+status.privacyStatus
+status.publicStatsViewable
+status.publishAt
+status.selfDeclaredMadeForKids
+recordingDetails.locationDescription (deprecated)
+recordingDetails.location.latitude (deprecated)
+recordingDetails.location.longitude (deprecated)
+recordingDetails.recordingDate
+    */
+    const data = {
+      "snippet": {
+        "title": "Test",
+        "description": "test"
+      }
+    }
+    console.log(data)
+  }
   async createNewLiveStream () {
     try {
-      const res = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/liveBroadcasts?part=id','POST',{
+    const broadcast = await this.createBroadcast()
+    const livestream = await this.makeRequest('https://www.googleapis.com/youtube/v3/liveStreams?part=cdn&part=snippet', 'POST', {
       "snippet": {
-        "scheduledStartTime": Date.now(),
         "title": "Getting Started With Screen Recorder"
       },
-      "contentDetails": {
-        "enableDvr": true,
-        "enableAutoStart": true,
-        "enableAutoStop": true
-      },
-      "status": {
-        "privacyStatus": "unlisted",
+      "cdn": {
+        "frameRate": "variable",
+        "ingestionType": "dash",
+        "resolution": "variable"
       }
     })
-    console.log(res)
+      console.log([broadcast, livestream])
+      const bind = await this.bindBroadCast(broadcast.id, livestream.id)
+      console.log(bind)
     } catch (e) {
       console.log(e)
     }
@@ -49,9 +77,37 @@ export default class Youtube {
       console.log(e)
     }
   }
-  createBroadcast () {}
-  bindBroadCast () {}
-  endBroadcast() {}
+  async createBroadcast () {
+    try {
+      const res = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/liveBroadcasts?part=contentDetails&part=snippet&part=status','POST',{
+      "snippet": {
+        "scheduledStartTime": new Date(Date.now()).toISOString(),
+        "title": "Getting Started With Screen Recorder"
+      },
+      "contentDetails": {
+        "enableDvr": true,
+        "enableAutoStart": true,
+        "enableAutoStop": true
+      },
+      "status": {
+        "privacyStatus": "unlisted",
+      }
+    })
+    return res
+    } catch (e) {
+      console.log(e)
+    }
+  }
+  async bindBroadCast (broadcastId, streamId) {
+    const url = `https://www.googleapis.com/youtube/v3/liveBroadcasts/bind?id=${broadcastId}&part=snippet&streamId=${streamId}`
+    try {
+      const res = await this.makeRequest(url, 'POST', {})
+      return res
+    } catch (e) {
+      console.log(e)
+    }
+  }
+  async endBroadcast() {}
   async makeRequest(url, method, data) {
     try {
       const res = await fetch(url, {
@@ -59,7 +115,7 @@ export default class Youtube {
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'no-cache',
         headers: {
-          Authorization: `token ${this.token}`
+          Authorization: `Bearer ${this.token}`
         },
         body: JSON.stringify(data)
       })
