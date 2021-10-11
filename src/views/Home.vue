@@ -29,7 +29,7 @@
 </t-modal>
 <div class="mt-5 mb-5">
   <t-button v-on:click="connectToYoutube" v-if="!youtube_ready" class="mr-5"> Stream Recording To YouTube  </t-button>
-  <t-button v-on:click="streamToYouTube" v-else> Start Stream </t-button>
+  <t-button v-on:click="streamToYouTube" v-else @click="createBroadcast"> Start Stream </t-button>
     <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord"> Start Recording 🎥</t-button>
     <div v-else>
       <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
@@ -87,7 +87,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setYouTube', 'streamToYouTube', 'getBroadcasts']),
+    ...mapActions(['setYouTube', 'streamToYouTube', 'getBroadcasts', 'createBroadcast']),
     async connectToYoutube () {
       window.open(`${this.url}/login/youtube`, "YouTube Login", 'width=800, height=600');
     },

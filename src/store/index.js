@@ -16,6 +16,9 @@ export default new Vuex.Store({
     },
     getBroadcasts (state) {
       return state.yt.getBroadcasts()
+    },
+    createBroadcast (state) {
+      return state.yt.createNewLiveStream()
     }
   },
   actions: {
@@ -28,6 +31,9 @@ export default new Vuex.Store({
     },
     getBroadcasts (context) {
       return context.commit('getBroadcasts')
+    },
+    createBroadcast (context) {
+      context.commit('createBroadcast')
     }
   },
   getters: {
