@@ -27,7 +27,7 @@
     </div>
   </template>
 </t-modal>
-<div class="mr-5">
+<div class="mt-5 mb-5">
   <t-button v-on:click="connectToYoutube" v-if="!youtube_ready"> Connect To YouTube 📺</t-button>
 </div>
 <div class="mt-5 mb-5">
