@@ -33,7 +33,7 @@
 <div class="mt-5 mb-5">
   <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord" class="ml-10"> Start Recording 🎥</t-button>
     <div v-else>
-      <t-button v-on:click="streamToYouTube" @click="createBroadcast">Stream To Youtube 📺</t-button>
+      <t-button v-on:click="streamToYouTube" @click="createBroadcast" v-if="youtube_ready">Stream To Youtube 📺</t-button>
 
       <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
       </div>
