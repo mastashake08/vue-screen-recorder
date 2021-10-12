@@ -3,7 +3,7 @@
 const CACHE = "recorder-offline";
 const QUEUE_NAME = "bgSyncQueue";
 const urlsToCache = [
-  '/js/app.37b818b3.js',
+  '/js/app.3c0cc5f1.js',
   '/js/chunk-vendors.ead5c924.js',
   '/img/logo.5c33d4ac.svg',
   '/favicon.ico',
