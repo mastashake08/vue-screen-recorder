@@ -10,6 +10,7 @@
   "dependencies": {
     "@tailwindcss/forms": "^0.3.4",
     "core-js": "^3.6.5",
+    "ffmpeg.js": "^4.2.9003",
     "vue": "^2.6.11",
     "vue-cookie-law": "^1.13.3",
     "vue-google-adsense": "^1.9.3",
