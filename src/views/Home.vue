@@ -28,7 +28,7 @@
   </template>
 </t-modal>
 <div class="mt-5 mb-5">
-  <!-- <t-button v-on:click="connectToYoutube" v-if="!youtube_ready"> Connect To YouTube 📺</t-button> -->
+   <t-button v-on:click="connectToYoutube" v-if="!youtube_ready"> Connect To Google</t-button>
 </div>
 <div class="mt-5 mb-5">
   <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord" class="ml-10"> Start Recording 🎥</t-button>
@@ -36,6 +36,7 @@
       <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
       </div>
     <!-- <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button> -->
+    <t-button v-on:click="uploadToDrive" v-if="uploadReady" class="ml-10">Upload To Drive 🗄️</t-button>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
     <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
@@ -86,12 +87,35 @@ export default {
       sendEmail: '',
       url: 'https://screen-recorder-micro.jcompsolu.com',
       bytes_processed: 0,
+      yt_token: ''
     }
   },
   methods: {
     ...mapActions(['setYouTube', 'streamToYouTube', 'uploadToYouTube', 'getBroadcasts', 'createBroadcast']),
     async connectToYoutube () {
       window.open(`${this.url}/api/login/youtube`, "YouTube Login", 'width=800, height=600');
+    },
+    async uploadToDrive () {
+
+      let metadata = {
+          'name': 'Screen Recorder Pro - ' + new Date(), // Filename at Google Drive
+          'mimeType': 'video/webm', // mimeType at Google Drive
+      }
+      let form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
+      form.append('file', this.file);
+      console.log(this.file)
+      await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache',
+        headers: {
+          'Content-Length': this.file.length,
+          Authorization: `Bearer ${this.yt_token}`
+        },
+        body: form
+      })
+      alert('Video uploaded to Google Drive!')
     },
     upload () {
       this.uploadToYouTube(this.file)
@@ -273,6 +297,7 @@ export default {
     window.addEventListener("message", function (e) {
       if (typeof e.data.youtube_token !== 'undefined') {
         console.log(e.data.youtube_token)
+        ctx.yt_token = e.data.youtube_token
         ctx.setYouTube(e.data.youtube_token)
         ctx.youtube_ready = true
       }
