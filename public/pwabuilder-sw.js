@@ -3,13 +3,10 @@
 const CACHE = "recorder-offline";
 const QUEUE_NAME = "bgSyncQueue";
 const urlsToCache = [
-  '/js/app.f34fded1.js',
-  '/js/chunk-vendors.ead5c924.js',
   '/img/logo.5c33d4ac.svg',
   '/favicon.ico',
   '/manifest.json',
   '/',
-  '/css/app.9b5bcd30.css'
 ]
 const API_URL = "https://screen-recorder-micro.jcompsolu.com/api"
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
