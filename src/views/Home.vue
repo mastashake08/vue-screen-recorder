@@ -91,7 +91,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setYouTube', 'streamToYouTube', 'uploadToYouTube', 'getBroadcasts', 'createBroadcast']),
+    ...mapActions(['setYouTube', 'streamToYouTube', 'uploadToYouTube', ]),
     async connectToYoutube () {
       window.open(`${this.url}/api/login/youtube`, "YouTube Login", 'width=800, height=600');
     },
@@ -349,8 +349,7 @@ export default {
     try {
       if(localStorage.youtube_key != null) {
         this.setYouTube(localStorage.youtube_key)
-        console.log(this.getBroadcasts())
-        this.youtube_ready = true
+          this.youtube_ready = true
       }
       const registration = await navigator.serviceWorker.ready
       const tags = await registration.periodicSync.getTags()
