@@ -15,14 +15,17 @@ export default class Youtube {
         }
   async uploadVideo (blob) {
     console.log(blob)
-    let data = new FormData()
-  //  data.append('file', blob)
-    data.append('snippet.title', 'Screen Recorder Pro Recording - ' + new Date())
-    data.append('snippet.description', 'This screen recording was created with Screen Recorder Pro https://recorder.jcompsolu.com')
-    data.append('status.privacyStatus', "private")
-    console.log('DATA', data.values())
-    const req = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=status', 'POST', data)
-    console.log(req)
+    //let data = new FormData()
+    let resData = {
+      snippet: {
+        title: 'Screen Recorder Pro Recording - ' + new Date(),
+        description: 'This screen recording was created with Screen Recorder Pro https://recorder.jcompsolu.com'
+      }
+    }
+    //data.append('snippet', JSON.stringify(resData))
+    //data.append('file', blob)
+    const req = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/videos?part=snippet', 'POST', JSON.stringify(resData))
+    console.log(req.json())
   }
   async createNewLiveStream () {
     try {
