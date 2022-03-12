@@ -14,32 +14,30 @@ export default class Youtube {
                 return results[1];
         }
   async uploadVideo (blob) {
+    console.log(blob)
     let data = new FormData()
-    data.append('vidoe', blob)
-    data.append('snippet', {
-      'title': 'Screen Recorder Pro Recording - ' + new Date(),
-      'description': 'This screen recording was created with Screen Recorder Pro https://recorder.jcompsolu.com'
-    })
-    data.append('status', {
-      "privacyStatus": "private"
-    })
-    console.log('DATA', data)
+  //  data.append('file', blob)
+    data.append('snippet.title', 'Screen Recorder Pro Recording - ' + new Date())
+    data.append('snippet.description', 'This screen recording was created with Screen Recorder Pro https://recorder.jcompsolu.com')
+    data.append('status.privacyStatus', "private")
+    console.log('DATA', data.values())
     const req = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=status', 'POST', data)
     console.log(req)
   }
   async createNewLiveStream () {
     try {
-    const broadcast = await this.createBroadcast()
-    const livestream = await this.makeRequest('https://www.googleapis.com/youtube/v3/liveStreams?part=cdn&part=snippet', 'POST', {
-      "snippet": {
-        "title": "Getting Started With Screen Recorder"
-      },
-      "cdn": {
-        "frameRate": "variable",
-        "ingestionType": "dash",
-        "resolution": "variable"
+      let data = {
+        "snippet": {
+          "title": "Getting Started With Screen Recorder"
+        },
+        "cdn": {
+          "frameRate": "variable",
+          "ingestionType": "dash",
+          "resolution": "variable"
+        }
       }
-    })
+    const broadcast = await this.createBroadcast()
+    const livestream = await this.makeRequest('https://www.googleapis.com/youtube/v3/liveStreams?part=cdn&part=snippet', 'POST', JSON.stringify(data))
       console.log([broadcast, livestream])
       const bind = await this.bindBroadCast(broadcast.id, livestream.id)
       console.log(bind)
@@ -64,20 +62,21 @@ export default class Youtube {
   }
   async createBroadcast () {
     try {
-      const res = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/liveBroadcasts?part=contentDetails&part=snippet&part=status','POST',{
-      "snippet": {
-        "scheduledStartTime": new Date(Date.now()).toISOString(),
-        "title": "Getting Started With Screen Recorder"
-      },
-      "contentDetails": {
-        "enableDvr": true,
-        "enableAutoStart": true,
-        "enableAutoStop": true
-      },
-      "status": {
-        "privacyStatus": "unlisted",
+      let data = {
+        "snippet": {
+          "scheduledStartTime": new Date(Date.now()).toISOString(),
+          "title": "Getting Started With Screen Recorder"
+        },
+        "contentDetails": {
+          "enableDvr": true,
+          "enableAutoStart": true,
+          "enableAutoStop": true
+        },
+        "status": {
+          "privacyStatus": "unlisted",
+        }
       }
-    })
+      const res = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/liveBroadcasts?part=contentDetails&part=snippet&part=status','POST', JSON.stringify(data))
     return res
     } catch (e) {
       console.log(e)
@@ -86,7 +85,7 @@ export default class Youtube {
   async bindBroadCast (broadcastId, streamId) {
     const url = `https://www.googleapis.com/youtube/v3/liveBroadcasts/bind?id=${broadcastId}&part=snippet&streamId=${streamId}`
     try {
-      const res = await this.makeRequest(url, 'POST', {})
+      const res = await this.makeRequest(url, 'POST', JSON.stringify({}))
       return res
     } catch (e) {
       console.log(e)
@@ -102,7 +101,7 @@ export default class Youtube {
         headers: {
           Authorization: `Bearer ${this.token}`
         },
-        body: JSON.stringify(data)
+        body: data
       })
       const ret = await res.json()
       return ret

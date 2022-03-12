@@ -28,14 +28,14 @@
   </template>
 </t-modal>
 <div class="mt-5 mb-5">
-  <t-button v-on:click="connectToYoutube" v-if="!youtube_ready"> Connect To YouTube 📺</t-button>
+  <!-- <t-button v-on:click="connectToYoutube" v-if="!youtube_ready"> Connect To YouTube 📺</t-button> -->
 </div>
 <div class="mt-5 mb-5">
   <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord" class="ml-10"> Start Recording 🎥</t-button>
     <div v-else>
       <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
       </div>
-    <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button>
+    <!-- <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button> -->
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
     <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
@@ -89,13 +89,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setYouTube', 'streamToYouTube', 'uploadToYoutube', 'getBroadcasts', 'createBroadcast']),
+    ...mapActions(['setYouTube', 'streamToYouTube', 'uploadToYouTube', 'getBroadcasts', 'createBroadcast']),
     async connectToYoutube () {
       window.open(`${this.url}/api/login/youtube`, "YouTube Login", 'width=800, height=600');
     },
     upload () {
-      console.log('Upload')
-      this.uploadToYoutube(this.file)
+      this.uploadToYouTube(this.file)
     },
     async emailFile () {
       try {
