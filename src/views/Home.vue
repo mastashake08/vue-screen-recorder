@@ -33,7 +33,7 @@
 <div class="mt-5 mb-5">
   <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord" class="ml-10"> Start Recording 🎥</t-button>
     <div v-else>
-      <t-button v-on:click="uploadToYoutube" v-if="youtube_ready && fileReady">Upload To Youtube 📺</t-button>
+      <t-button v-on:click="uploadToYoutube" v-if="uploadReady">Upload To Youtube 📺</t-button>
 
       <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
       </div>
@@ -313,7 +313,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getYoutube'])
+    ...mapGetters(['getYoutube']),
+    uploadReady () {
+      return this.fileReady && this.youtube_ready
+    }
   },
   async created () {
     try {
