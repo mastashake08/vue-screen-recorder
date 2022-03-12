@@ -35,7 +35,7 @@
     <div v-else>
       <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
       </div>
-    <t-button v-on:click="uploadToYoutube" v-if="uploadReady">Upload To Youtube 📺</t-button>
+    <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
     <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
@@ -92,6 +92,9 @@ export default {
     ...mapActions(['setYouTube', 'streamToYouTube', 'uploadToYoutube', 'getBroadcasts', 'createBroadcast']),
     async connectToYoutube () {
       window.open(`${this.url}/api/login/youtube`, "YouTube Login", 'width=800, height=600');
+    },
+    upload () {
+      this.uploadToYoutube(this.file)
     },
     async emailFile () {
       try {
@@ -172,22 +175,22 @@ export default {
       this.fileReady = true
     },
     download: function(){
-    var url = URL.createObjectURL(this.file);
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style = "display: none";
-    a.href = url;
-    var d = new Date();
-    var n = d.toUTCString();
-    a.download = n+".webm";
-    a.click();
-    window.URL.revokeObjectURL(url);
-    this.recordedChunks = []
-    this.showNotification()
-    this.$gtag.event('file-downloaded', {
-      'event_category' : 'Files',
-      'event_label' : 'File Downloaded'
-    })
+      var url = URL.createObjectURL(this.file);
+      var a = document.createElement("a");
+      document.body.appendChild(a);
+      a.style = "display: none";
+      a.href = url;
+      var d = new Date();
+      var n = d.toUTCString();
+      a.download = n+".webm";
+      a.click();
+      window.URL.revokeObjectURL(url);
+      this.recordedChunks = []
+      this.showNotification()
+      this.$gtag.event('file-downloaded', {
+        'event_category' : 'Files',
+        'event_label' : 'File Downloaded'
+      })
     },
     showNotification: function() {
       this.$gtag.event('notification-shown', {})
