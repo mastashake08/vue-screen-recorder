@@ -14,6 +14,9 @@ export default new Vuex.Store({
     streamToYouTube (state) {
       return state.yt.createNewLiveStream()
     },
+    uploadToYouTube (state) {
+      return state.yt.uploadVideo()
+    },
     getBroadcasts (state) {
       return state.yt.getBroadcasts()
     },
@@ -28,6 +31,9 @@ export default new Vuex.Store({
     },
     streamToYouTube (context) {
       context.commit('streamToYouTube')
+    },
+    uploadToYouTube (context) {
+      context.commit('uploadToYouTube')
     },
     getBroadcasts (context) {
       return context.commit('getBroadcasts')

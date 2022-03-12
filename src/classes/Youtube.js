@@ -13,34 +13,18 @@ export default class Youtube {
             else
                 return results[1];
         }
-  async uploadVideo () {
-    /*
-    snippet.title
-snippet.description
-snippet.tags[]
-snippet.categoryId
-snippet.defaultLanguage
-localizations.(key)
-localizations.(key).title
-localizations.(key).description
-status.embeddable
-status.license
-status.privacyStatus
-status.publicStatsViewable
-status.publishAt
-status.selfDeclaredMadeForKids
-recordingDetails.locationDescription (deprecated)
-recordingDetails.location.latitude (deprecated)
-recordingDetails.location.longitude (deprecated)
-recordingDetails.recordingDate
-    */
-    const data = {
-      "snippet": {
-        "title": "Test",
-        "description": "test"
-      }
-    }
-    console.log(data)
+  async uploadVideo (blob) {
+    let data = new FormData()
+    data.append('file', blob)
+    data.append('snippet', {
+      'title': 'Screen Recorder Pro Recording - ' + new Date(),
+      'description': 'This screen recording was created with Screen Recorder Pro https://recorder.jcompsolu.com'
+    })
+    data.append('status', {
+      "privacyStatus": "private"
+    })
+    const req = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=status', 'POST', data)
+    console.log(req)
   }
   async createNewLiveStream () {
     try {

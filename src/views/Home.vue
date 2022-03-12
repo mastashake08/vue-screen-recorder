@@ -33,7 +33,7 @@
 <div class="mt-5 mb-5">
   <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord" class="ml-10"> Start Recording 🎥</t-button>
     <div v-else>
-      <t-button v-on:click="streamToYouTube" @click="createBroadcast" v-if="youtube_ready">Stream To Youtube 📺</t-button>
+      <t-button v-on:click="uploadToYoutube" v-if="youtube_ready">Upload To Youtube 📺</t-button>
 
       <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
       </div>
@@ -67,7 +67,7 @@ export default {
       options: {
         audioBitsPerSecond: 128000,
         videoBitsPerSecond: 2500000,
-        mimeType: 'video/webm'
+        mimeType: 'video/webm; codecs=vp9'
       },
       displayOptions: {
       video: {
@@ -90,7 +90,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setYouTube', 'streamToYouTube', 'getBroadcasts', 'createBroadcast']),
+    ...mapActions(['setYouTube', 'streamToYouTube', 'uploadToYoutube', 'getBroadcasts', 'createBroadcast']),
     async connectToYoutube () {
       window.open(`${this.url}/api/login/youtube`, "YouTube Login", 'width=800, height=600');
     },
@@ -132,7 +132,7 @@ export default {
     },
     setFile (){
       this.file = new Blob(this.recordedChunks, {
-        type: "video/webm"
+        type: "video/webm; codecs=vp9"
       });
       this.$gtag.event('file-set', {
         'event_category' : 'Files',
