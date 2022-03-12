@@ -26,13 +26,14 @@ export default new Vuex.Store({
   },
   actions: {
     setYouTube (context, token) {
-      console.log(token)
       context.commit('setYouTube', token)
     },
     streamToYouTube (context) {
+
       context.commit('streamToYouTube')
     },
     uploadToYouTube (context) {
+      console.log('Upload to yt')
       context.commit('uploadToYouTube')
     },
     getBroadcasts (context) {

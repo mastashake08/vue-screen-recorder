@@ -15,7 +15,7 @@ export default class Youtube {
         }
   async uploadVideo (blob) {
     let data = new FormData()
-    data.append('file', blob)
+    data.append('vidoe', blob)
     data.append('snippet', {
       'title': 'Screen Recorder Pro Recording - ' + new Date(),
       'description': 'This screen recording was created with Screen Recorder Pro https://recorder.jcompsolu.com'
@@ -23,6 +23,7 @@ export default class Youtube {
     data.append('status', {
       "privacyStatus": "private"
     })
+    console.log('DATA', data)
     const req = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=status', 'POST', data)
     console.log(req)
   }

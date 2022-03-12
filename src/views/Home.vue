@@ -94,6 +94,7 @@ export default {
       window.open(`${this.url}/api/login/youtube`, "YouTube Login", 'width=800, height=600');
     },
     upload () {
+      console.log('Upload')
       this.uploadToYoutube(this.file)
     },
     async emailFile () {
