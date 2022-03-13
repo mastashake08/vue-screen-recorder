@@ -58,11 +58,13 @@
  import { mapGetters, mapActions } from 'vuex'
  import JSZip from 'jszip'
  import FileSaver from 'file-saver'
+ import SpeechKit from '../classes/SpeechKit'
 export default {
   name: 'Home',
   components: { CookieLaw },
   data() {
     return {
+      speechKit: {},
       youtube_ready: false,
       canRecord: true,
       isRecording: false,
@@ -170,8 +172,7 @@ export default {
       }
     },
     async setFile (){
-      console.log('transcript', await this.getTranscript())
-      this.transcript = this.getTranscript()
+      this.transcript = this.speechKit.getText()
       this.file = new Blob(this.recordedChunks, {
         type: "video/webm; codecs=vp9"
       });
@@ -222,7 +223,7 @@ export default {
       zip.file(`${n}.webm`, this.file)
       zip.file(`${n}.txt`, this.transcript)
       zip.generateAsync({ type: 'blob' }).then(function (content) {
-        FileSaver.saveAs(content, 'download.zip');
+        FileSaver.saveAs(content, `Screen Recorder Pro - ${n}.zip`);
       });
       this.recordedChunks = []
       this.showNotification()
@@ -273,7 +274,7 @@ export default {
         'event_category' : 'Streams',
         'event_label' : 'Stream Stopped'
       })
-      this.stopListen()
+      this.speechKit.stopListen()
       //this.speak('Recording stopped!')
     },
     getStream: async function() {
@@ -291,10 +292,10 @@ export default {
         this.stream.addTrack(audioTrack[0])
         this.mediaRecorder = new MediaRecorder(this.stream)
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
-        this.speak('Recording started!')
+        this.speechKit.speak('Recording started!')
         this.mediaRecorder.start();
         this.isRecording = true
-        this.listen()
+        this.speechKit.listen()
         this.$gtag.event('stream-start', {
           'event_category' : 'Streams',
           'event_label' : 'Stream Started'
@@ -315,8 +316,7 @@ export default {
 
   },
   mounted() {
-    this.setSpeech()
-    console.log('setting speech')
+
     const ctx = this
     window.addEventListener("message", function (e) {
       if (typeof e.data.youtube_token !== 'undefined') {
@@ -371,7 +371,7 @@ export default {
   },
   async created () {
     try {
-
+      this.speechKit = new SpeechKit()
       if(localStorage.youtube_key != null) {
         this.setYouTube(localStorage.youtube_key)
           this.youtube_ready = true

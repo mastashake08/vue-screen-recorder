@@ -4,7 +4,7 @@ export default class SpeechKit {
     let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     let SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList
     let language = window.navigator.userLanguage || window.navigator.language
-    this.resultList = []
+    this.resultList = {}
     this.recognition = new SpeechRecognition()
     this.recognition.lang = language
     this.grammarList = new SpeechGrammarList()
@@ -19,7 +19,7 @@ export default class SpeechKit {
     this.recognition.onresult = function(event) {
       console.log(event.results[0].isFinal)
       if(event.results[0].isFinal)
-      ctx.resultList.push(event.results)
+      ctx.resultList = event.results
     }
     this.recognition.onerror = function(event) {
       console.log(event)
@@ -47,15 +47,11 @@ export default class SpeechKit {
   }
 
   getText () {
-    console.log(this.resultList)
     let text = ''
     for(let i = 0; i < this.resultList.length; ++i) {
-      for(let j = 0; j < this.resultList[i].length; ++j)
-      text += this.resultList[i][j][0].transcript + '\n'
+      text += this.resultList[i][0].transcript + '\n'
     }
-    console.log('Text', text)
     let transcript = new Blob([text], { type: "text/plain"})
-    console.log('transcript', transcript)
     return transcript
 
   }
