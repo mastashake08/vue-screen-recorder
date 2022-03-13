@@ -56,6 +56,8 @@
 <script>
  import CookieLaw from 'vue-cookie-law'
  import { mapGetters, mapActions } from 'vuex'
+ import JSZip from 'jszip'
+ import FileSaver from 'file-saver'
 export default {
   name: 'Home',
   components: { CookieLaw },
@@ -87,24 +89,29 @@ export default {
       sendEmail: '',
       url: 'https://screen-recorder-micro.jcompsolu.com',
       bytes_processed: 0,
-      yt_token: ''
+      yt_token: '',
+      transcript: {}
     }
   },
   methods: {
-    ...mapActions(['setYouTube', 'streamToYouTube', 'uploadToYouTube', ]),
+    ...mapActions(['setYouTube', 'streamToYouTube', 'uploadToYouTube', 'setSpeech', 'speak', 'listen', 'stopListen', 'getTranscript']),
     async connectToYoutube () {
       window.open(`${this.url}/api/login/youtube`, "YouTube Login", 'width=800, height=600');
     },
     async uploadToDrive () {
-
+      var d = new Date();
+      var n = d.toUTCString();
+      const zip = new JSZip()
+      zip.file(`${n}.webm`, this.file)
+      zip.file(`${n}.txt`, this.transcript)
+      const content = await zip.generateAsync({ type: 'blob' })
       let metadata = {
           'name': 'Screen Recorder Pro - ' + new Date(), // Filename at Google Drive
           'mimeType': 'video/webm', // mimeType at Google Drive
       }
       let form = new FormData();
       form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
-      form.append('file', this.file);
-      console.log(this.file)
+      form.append('file', content);
       await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
@@ -122,8 +129,14 @@ export default {
     },
     async emailFile () {
       try {
+        var d = new Date();
+        var n = d.toUTCString();
+        const zip = new JSZip()
+        zip.file(`${n}.webm`, this.file)
+        zip.file(`${n}.txt`, this.transcript)
+        const content = await zip.generateAsync({ type: 'blob' })
         const fd = new FormData();
-        fd.append('video', this.file)
+        fd.append('video', content)
         fd.append('email', this.sendEmail)
         await fetch(`${this.url}/api/email-file`, {
           method: 'post',
@@ -156,7 +169,9 @@ export default {
         this.$gtag.exception('application-error', e)
       }
     },
-    setFile (){
+    async setFile (){
+      console.log('transcript', await this.getTranscript())
+      this.transcript = this.getTranscript()
       this.file = new Blob(this.recordedChunks, {
         type: "video/webm; codecs=vp9"
       });
@@ -199,16 +214,16 @@ export default {
       this.fileReady = true
     },
     download: function(){
-      var url = URL.createObjectURL(this.file);
-      var a = document.createElement("a");
-      document.body.appendChild(a);
-      a.style = "display: none";
-      a.href = url;
+
+
       var d = new Date();
       var n = d.toUTCString();
-      a.download = n+".webm";
-      a.click();
-      window.URL.revokeObjectURL(url);
+      const zip = new JSZip()
+      zip.file(`${n}.webm`, this.file)
+      zip.file(`${n}.txt`, this.transcript)
+      zip.generateAsync({ type: 'blob' }).then(function (content) {
+        FileSaver.saveAs(content, 'download.zip');
+      });
       this.recordedChunks = []
       this.showNotification()
       this.$gtag.event('file-downloaded', {
@@ -258,9 +273,13 @@ export default {
         'event_category' : 'Streams',
         'event_label' : 'Stream Stopped'
       })
+      this.stopListen()
+      //this.speak('Recording stopped!')
     },
     getStream: async function() {
     try {
+
+
         this.stream =  await navigator.mediaDevices.getDisplayMedia(this.displayOptions);
         this.stream.getVideoTracks()[0].onended = () => { // Click on browser UI stop sharing button
           this.stream.getTracks()
@@ -272,12 +291,15 @@ export default {
         this.stream.addTrack(audioTrack[0])
         this.mediaRecorder = new MediaRecorder(this.stream)
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
+        this.speak('Recording started!')
         this.mediaRecorder.start();
         this.isRecording = true
+        this.listen()
         this.$gtag.event('stream-start', {
           'event_category' : 'Streams',
           'event_label' : 'Stream Started'
         })
+
       } catch(e) {
         this.isRecording = false
         this.$gtag.exception('application-error', e)
@@ -293,6 +315,8 @@ export default {
 
   },
   mounted() {
+    this.setSpeech()
+    console.log('setting speech')
     const ctx = this
     window.addEventListener("message", function (e) {
       if (typeof e.data.youtube_token !== 'undefined') {
@@ -340,13 +364,14 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getYoutube']),
+    ...mapGetters(['getYoutube', 'getSpeech', 'getText']),
     uploadReady () {
       return this.fileReady && this.youtube_ready
     }
   },
   async created () {
     try {
+
       if(localStorage.youtube_key != null) {
         this.setYouTube(localStorage.youtube_key)
           this.youtube_ready = true
