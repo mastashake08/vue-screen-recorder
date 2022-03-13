@@ -109,7 +109,7 @@ export default {
       const content = await zip.generateAsync({ type: 'blob' })
       let metadata = {
           'name': 'Screen Recorder Pro - ' + new Date(), // Filename at Google Drive
-          'mimeType': 'video/webm', // mimeType at Google Drive
+          'mimeType': 'application/zip', // mimeType at Google Drive
       }
       let form = new FormData();
       form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
