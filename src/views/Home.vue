@@ -38,7 +38,7 @@
     <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button>
     <t-button v-on:click="uploadToDrive" v-if="uploadReady" class="ml-10">Upload To Drive 🗄️</t-button>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
-    <t-button v-on:click="copyUrl" v-if="fileReady" class="ml-10"> Share 🔗</t-button>
+    <t-button v-on:click="copyUrl" v-if="shareReady" class="ml-10"> Share 🔗</t-button>
     <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
 <div class="mt-5" v-show="fileReady">
@@ -94,7 +94,8 @@ export default {
       bytes_processed: 0,
       yt_token: '',
       transcript: {},
-      vidUrl: ''
+      vidUrl: '',
+      shareReady: false
     }
   },
   methods: {
@@ -168,6 +169,7 @@ export default {
     },
     async uploadFileData () {
       try {
+        this.shareReady = false
         const fd = new FormData();
         fd.append('video', this.file)
         const res = await fetch(`${this.url}/api/upload-file-data`, {
@@ -176,6 +178,7 @@ export default {
         })
         const jres = await res.json()
         this.vidUrl = 'https://recorder.jcompsolu.com/#/view?video='+jres.id
+        this.shareReady = true
         this.$gtag.event('upload-file-data', {
           'name': this.file.name,
           'size': this.file.size
