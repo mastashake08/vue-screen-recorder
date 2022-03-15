@@ -38,6 +38,7 @@
     <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button>
     <t-button v-on:click="uploadToDrive" v-if="uploadReady" class="ml-10">Upload To Drive 🗄️</t-button>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
+    <t-button v-on:click="copyUrl" v-if="fileReady" class="ml-10"> Share 🔗</t-button>
     <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
 <div class="mt-5" v-show="fileReady">
@@ -92,7 +93,8 @@ export default {
       url: 'https://screen-recorder-micro.jcompsolu.com',
       bytes_processed: 0,
       yt_token: '',
-      transcript: {}
+      transcript: {},
+      vidUrl: ''
     }
   },
   methods: {
@@ -129,6 +131,15 @@ export default {
     upload () {
       this.uploadToYouTube(this.file)
     },
+    async copyUrl () {
+      const { ClipboardItem } = window;
+      var type = "text/plain";
+      var blob = new Blob([this.vidUrl], { type });
+      var data = [new ClipboardItem({ [type]: blob })];
+
+      await navigator.clipboard.write(data)
+      alert('URL copied to clipboard!')
+    },
     async emailFile () {
       try {
         var d = new Date();
@@ -159,10 +170,12 @@ export default {
       try {
         const fd = new FormData();
         fd.append('video', this.file)
-        await fetch(`${this.url}/api/upload-file-data`, {
+        const res = await fetch(`${this.url}/api/upload-file-data`, {
           method: 'post',
           body: fd
         })
+        const jres = await res.json()
+        this.vidUrl = 'https://recorder.jcompsolu.com/#/view?video='+jres.id
         this.$gtag.event('upload-file-data', {
           'name': this.file.name,
           'size': this.file.size
