@@ -38,7 +38,7 @@
     <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button>
     <t-button v-on:click="uploadToDrive" v-if="uploadReady" class="ml-10">Upload To Drive 🗄️</t-button>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
-    <t-button v-on:click="copyUrl" v-if="fileReady" class="ml-10"> Share 🔗</t-button>
+    <t-button v-on:click="copyUrl" v-if="shareReady" class="ml-10"> Share 🔗</t-button>
     <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
 <div class="mt-5" v-show="fileReady">
@@ -46,7 +46,7 @@
 </div>
 <Adsense
   data-ad-client="ca-pub-7023023584987784"
-  data-ad-slot="8876566362">
+  data-ad-slot="8876566362" v-if="loaded">
 </Adsense>
 <footer>
   <cookie-law theme="base"></cookie-law>
@@ -69,6 +69,7 @@ export default {
       youtube_ready: false,
       canRecord: true,
       isRecording: false,
+      loaded: false,
       options: {
         audioBitsPerSecond: 128000,
         videoBitsPerSecond: 2500000,
@@ -94,7 +95,8 @@ export default {
       bytes_processed: 0,
       yt_token: '',
       transcript: {},
-      vidUrl: ''
+      vidUrl: '',
+      shareReady: false
     }
   },
   methods: {
@@ -168,6 +170,7 @@ export default {
     },
     async uploadFileData () {
       try {
+        this.shareReady = false
         const fd = new FormData();
         fd.append('video', this.file)
         const res = await fetch(`${this.url}/api/upload-file-data`, {
@@ -176,6 +179,7 @@ export default {
         })
         const jres = await res.json()
         this.vidUrl = 'https://recorder.jcompsolu.com/#/view?video='+jres.id
+        this.shareReady = true
         this.$gtag.event('upload-file-data', {
           'name': this.file.name,
           'size': this.file.size
@@ -329,11 +333,10 @@ export default {
 
   },
   mounted() {
-
+    this.loaded = true
     const ctx = this
     window.addEventListener("message", function (e) {
       if (typeof e.data.youtube_token !== 'undefined') {
-        console.log(e.data.youtube_token)
         ctx.yt_token = e.data.youtube_token
         ctx.setYouTube(e.data.youtube_token)
         ctx.youtube_ready = true
@@ -349,24 +352,22 @@ export default {
     let that = this
     if (Notification.permission !== 'denied' || Notification.permission === "default") {
       try {
-        Notification.requestPermission().then(function(result) {
+        Notification.requestPermission().then(function() {
           that.$gtag.event('accepted-notifications', {
             'event_category' : 'Notifications',
             'event_label' : 'Notification accepted'
           })
-          console.log(result)
         });
       } catch (error) {
           // Safari doesn't return a promise for requestPermissions and it
           // throws a TypeError. It takes a callback as the first argument
           // instead.
           if (error instanceof TypeError) {
-              Notification.requestPermission((result) => {
+              Notification.requestPermission(() => {
                 that.$gtag.event('accepted-notifications', {
                   'event_category' : 'Notifications',
                   'event_label' : 'Notification accepted'
                 })
-                console.log(result)
               });
           } else {
             this.$gtag.exception('notification-error', error)

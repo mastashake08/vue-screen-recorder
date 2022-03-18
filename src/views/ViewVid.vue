@@ -19,7 +19,8 @@
 </div>
 <Adsense
   data-ad-client="ca-pub-7023023584987784"
-  data-ad-slot="8876566362">
+  data-ad-slot="8876566362"
+  v-if="loaded">
 </Adsense>
 <footer>
   <cookie-law theme="base"></cookie-law>
@@ -34,11 +35,13 @@ export default {
   components: { CookieLaw },
   data() {
     return {
+      loaded: false,
       video: '',
       videoId: ''
     }
   },
   async mounted() {
+    this.loaded = true
     this.videoId = this.$route.query.video
     const vid = await fetch('https://screen-recorder-micro.jcompsolu.com/api/video/' + this.videoId)
     const vidJson = await vid.json()
