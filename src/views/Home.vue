@@ -46,7 +46,8 @@
 </div>
 <Adsense
   data-ad-client="ca-pub-7023023584987784"
-  data-ad-slot="8876566362" v-if="loaded">
+  data-ad-slot="8876566362"
+  v-if="loaded">
 </Adsense>
 <footer>
   <cookie-law theme="base"></cookie-law>
@@ -299,6 +300,7 @@ export default {
 
 
         this.stream =  await navigator.mediaDevices.getDisplayMedia(this.displayOptions);
+        console.log('STREAM', this.stream)
         this.stream.getVideoTracks()[0].onended = () => { // Click on browser UI stop sharing button
           this.stream.getTracks()
           .forEach(track => track.stop())
@@ -308,6 +310,9 @@ export default {
         // add audio track
         this.stream.addTrack(audioTrack[0])
         this.mediaRecorder = new MediaRecorder(this.stream)
+        this.mediaRecorder.addEventListener('error', (event) => {
+          alert(`error recording stream: ${event.error.name}`)
+        });
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
         this.speechKit.speak('Recording started!')
         this.mediaRecorder.start();
@@ -337,6 +342,7 @@ export default {
     const ctx = this
     window.addEventListener("message", function (e) {
       if (typeof e.data.youtube_token !== 'undefined') {
+        console.log(e.data.youtube_token)
         ctx.yt_token = e.data.youtube_token
         ctx.setYouTube(e.data.youtube_token)
         ctx.youtube_ready = true
@@ -352,22 +358,24 @@ export default {
     let that = this
     if (Notification.permission !== 'denied' || Notification.permission === "default") {
       try {
-        Notification.requestPermission().then(function() {
+        Notification.requestPermission().then(function(result) {
           that.$gtag.event('accepted-notifications', {
             'event_category' : 'Notifications',
             'event_label' : 'Notification accepted'
           })
+          console.log(result)
         });
       } catch (error) {
           // Safari doesn't return a promise for requestPermissions and it
           // throws a TypeError. It takes a callback as the first argument
           // instead.
           if (error instanceof TypeError) {
-              Notification.requestPermission(() => {
+              Notification.requestPermission((result) => {
                 that.$gtag.event('accepted-notifications', {
                   'event_category' : 'Notifications',
                   'event_label' : 'Notification accepted'
                 })
+                console.log(result)
               });
           } else {
             this.$gtag.exception('notification-error', error)
