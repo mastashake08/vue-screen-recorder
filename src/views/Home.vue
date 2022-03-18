@@ -46,7 +46,7 @@
 </div>
 <Adsense
   data-ad-client="ca-pub-7023023584987784"
-  data-ad-slot="8876566362">
+  data-ad-slot="8876566362" v-if="loaded">
 </Adsense>
 <footer>
   <cookie-law theme="base"></cookie-law>
@@ -69,6 +69,7 @@ export default {
       youtube_ready: false,
       canRecord: true,
       isRecording: false,
+      loaded: false,
       options: {
         audioBitsPerSecond: 128000,
         videoBitsPerSecond: 2500000,
@@ -332,11 +333,10 @@ export default {
 
   },
   mounted() {
-
+    this.loaded = true
     const ctx = this
     window.addEventListener("message", function (e) {
       if (typeof e.data.youtube_token !== 'undefined') {
-        console.log(e.data.youtube_token)
         ctx.yt_token = e.data.youtube_token
         ctx.setYouTube(e.data.youtube_token)
         ctx.youtube_ready = true
@@ -352,24 +352,22 @@ export default {
     let that = this
     if (Notification.permission !== 'denied' || Notification.permission === "default") {
       try {
-        Notification.requestPermission().then(function(result) {
+        Notification.requestPermission().then(function() {
           that.$gtag.event('accepted-notifications', {
             'event_category' : 'Notifications',
             'event_label' : 'Notification accepted'
           })
-          console.log(result)
         });
       } catch (error) {
           // Safari doesn't return a promise for requestPermissions and it
           // throws a TypeError. It takes a callback as the first argument
           // instead.
           if (error instanceof TypeError) {
-              Notification.requestPermission((result) => {
+              Notification.requestPermission(() => {
                 that.$gtag.event('accepted-notifications', {
                   'event_category' : 'Notifications',
                   'event_label' : 'Notification accepted'
                 })
-                console.log(result)
               });
           } else {
             this.$gtag.exception('notification-error', error)
