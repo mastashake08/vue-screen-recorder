@@ -10,6 +10,10 @@
     browser limitations, this software can only be used on desktop. Please ensure you are on a Windows, MacOS or Linux
     computer using Chrome, Firefox or Safari!
     </p>
+    <p class="text-base font-light leading-relaxed mt-0 mb-4 text-gray-800">
+     Want to upload your videos to YouTube or upload to Google Drive? Connect your Google account!
+     We don't keep your data when you login and it is not required to use the application. To learn more please visit the <a href="/#/privacy">privacy policy</a>
+    </p>
     <h1 class="text-3xl font-large text-gray-500 uppercase">To Date We Have Processed: <strong class="animate-pulse text-3xl font-large text-red-500">{{bytes_processed}}</strong> bytes worth of video data!</h1>
     <t-modal
       header="Email Recording"
@@ -38,7 +42,7 @@
     <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button>
     <t-button v-on:click="uploadToDrive" v-if="uploadReady" class="ml-10">Upload To Drive 🗄️</t-button>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
-    <t-button v-on:click="copyUrl" v-if="shareReady" class="ml-10"> Share 🔗</t-button>
+    <t-button v-on:click="share" v-if="shareReady" class="ml-10"> Share 🔗</t-button>
     <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
 <div class="mt-5" v-show="fileReady">
@@ -142,6 +146,18 @@ export default {
 
       await navigator.clipboard.write(data)
       alert('URL copied to clipboard!')
+    },
+    async share () {
+    const shareData = {
+        title: 'Screen Recorder Pro',
+        text: 'Watch my screen recording!',
+        url: this.vidUrl
+      }
+      try {
+      await navigator.share(shareData)
+      } catch(err) {
+      this.copyUrl()
+      }
     },
     async emailFile () {
       try {

@@ -12,6 +12,15 @@
     "orientation": "any",
     "related_applications": [],
     "prefer_related_applications": false,
+    "share_target": {
+      "action": "/share-target/",
+      "method": "GET",
+      "params": {
+        "title": "title",
+        "text": "text",
+        "url": "url"
+      }
+    },
     "icons": [
         {
             "src": "/logo.png",
