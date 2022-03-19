@@ -1,6 +1,6 @@
 // This is the "Offline copy of assets" service worker
 
-const CACHE = "recorder-offline-v1";
+const CACHE = "recorder-offline-v2";
 const QUEUE_NAME = "bgSyncQueue";
 const urlsToCache = [
   '/img/logo.5c33d4ac.svg',
