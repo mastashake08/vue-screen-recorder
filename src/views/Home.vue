@@ -77,8 +77,7 @@ export default {
       loaded: false,
       options: {
         audioBitsPerSecond: 128000,
-        videoBitsPerSecond: 2500000,
-        mimeType: 'video/webm; codecs=vp9'
+        videoBitsPerSecond: 2500000
       },
       displayOptions: {
       video: {
@@ -208,7 +207,7 @@ export default {
     async setFile (){
       this.transcript = this.speechKit.getText()
       this.file = new Blob(this.recordedChunks, {
-        type: "video/webm; codecs=vp9"
+        type: this.mediaRecorder.mimeType
       });
       this.$gtag.event('file-set', {
         'event_category' : 'Files',
@@ -300,7 +299,6 @@ export default {
     },
     stopStream: function() {
       this.mediaRecorder.stop()
-      this.mediaRecorder = null
       this.stream.getTracks()
       .forEach(track => track.stop())
       this.stream = null
