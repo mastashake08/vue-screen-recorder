@@ -36,7 +36,8 @@
 </div>
 <div class="mt-5 mb-5">
   <t-toggle
-              model="speechEnabled"
+              v-if="!isRecording"
+              :model="speechEnabled"
               checkedLabel="Voices On"
               uncheckedLabel="Voices Off"
               :classes="{
@@ -340,7 +341,7 @@ export default {
           alert(`error recording stream: ${event.error.name}`)
         });
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
-        if(this.speechEnabled) {
+        if(this.speechEnabled == true) {
           this.speechKit.speak('Recording started!')
         }
         this.mediaRecorder.start();
