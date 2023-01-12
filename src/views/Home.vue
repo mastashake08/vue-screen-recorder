@@ -36,7 +36,7 @@
 </div>
 <div class="mt-5 mb-5">
   <t-toggle
-              :model="speechEnabled"
+              model="speechEnabled"
               checkedLabel="Voices On"
               uncheckedLabel="Voices Off"
               :classes="{
