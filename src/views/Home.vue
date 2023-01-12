@@ -115,7 +115,7 @@ export default {
       transcript: {},
       vidUrl: '',
       shareReady: false,
-      speechEnabled: true
+      speechEnabled: false
     }
   },
   methods: {
