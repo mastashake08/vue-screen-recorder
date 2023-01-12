@@ -35,6 +35,19 @@
    <t-button v-on:click="connectToYoutube" v-if="!youtube_ready"> Connect To Google</t-button>
 </div>
 <div class="mt-5 mb-5">
+  <t-toggle
+              :model="speechEnabled"
+              checkedLabel="Voices On"
+              uncheckedLabel="Voices Off"
+              :classes="{
+    wrapper: 'bg-gray-200 focus:outline-none focus:shadow-outline rounded-sm border-2',
+    wrapperChecked: 'bg-gray-200 focus:outline-none focus:shadow-outline rounded-sm border-2',
+    button: 'rounded-sm w-6 h-6 bg-white shadow flex items-center justify-center text-gray-800 text-xs',
+    buttonChecked: 'rounded-sm w-10 h-6 bg-white shadow flex items-center justify-center text-gray-800 text-xs',
+    checkedPlaceholder: 'rounded-sm w-10 h-6 flex items-center justify-center text-gray-500 text-xs',
+    uncheckedPlaceholder: 'rounded-sm w-10 h-6 flex items-center justify-center text-gray-500 text-xs'
+  }"
+            ></t-toggle>
   <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord" class="ml-10"> Start Recording 🎥</t-button>
     <div v-else>
       <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
@@ -100,7 +113,8 @@ export default {
       yt_token: '',
       transcript: {},
       vidUrl: '',
-      shareReady: false
+      shareReady: false,
+      speechEnabled: true
     }
   },
   methods: {
@@ -310,9 +324,7 @@ export default {
       //this.speak('Recording stopped!')
     },
     getStream: async function() {
-    try {
-
-
+      try {
         this.stream =  await navigator.mediaDevices.getDisplayMedia(this.displayOptions);
         console.log('STREAM', this.stream)
         this.stream.getVideoTracks()[0].onended = () => { // Click on browser UI stop sharing button
@@ -328,7 +340,9 @@ export default {
           alert(`error recording stream: ${event.error.name}`)
         });
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
-        this.speechKit.speak('Recording started!')
+        if(this.speechEnabled) {
+          this.speechKit.speak('Recording started!')
+        }
         this.mediaRecorder.start();
         this.isRecording = true
         this.speechKit.listen()
@@ -338,6 +352,7 @@ export default {
         })
 
       } catch(e) {
+        console.log(e)
         this.isRecording = false
         this.$gtag.exception('application-error', e)
       }
