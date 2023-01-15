@@ -316,6 +316,7 @@ export default {
     },
     stopStream: function() {
       this.mediaRecorder.stop()
+      navigator.clearAppBadge()
       this.stream.getTracks()
       .forEach(track => track.stop())
       this.stream = null
@@ -347,6 +348,7 @@ export default {
         if(this.speechEnabled == true) {
           this.speechKit.speak('Recording started!')
         }
+        navigator.setAppBadge()
         this.mediaRecorder.start();
         this.isRecording = true
         this.speechKit.listen()
