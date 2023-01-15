@@ -37,17 +37,17 @@
 <div class="mt-5 mb-5">
   <t-toggle
               v-if="!isRecording"
-              :model="speechEnabled"
+              v-model="speechEnabled"
               checkedLabel="Voices On"
               uncheckedLabel="Voices Off"
               :classes="{
-    wrapper: 'bg-gray-200 focus:outline-none focus:shadow-outline rounded-sm border-2',
-    wrapperChecked: 'bg-gray-200 focus:outline-none focus:shadow-outline rounded-sm border-2',
-    button: 'rounded-sm w-6 h-6 bg-white shadow flex items-center justify-center text-gray-800 text-xs',
-    buttonChecked: 'rounded-sm w-10 h-6 bg-white shadow flex items-center justify-center text-gray-800 text-xs',
-    checkedPlaceholder: 'rounded-sm w-10 h-6 flex items-center justify-center text-gray-500 text-xs',
-    uncheckedPlaceholder: 'rounded-sm w-10 h-6 flex items-center justify-center text-gray-500 text-xs'
-  }"
+                wrapper: 'bg-gray-200 focus:outline-none focus:shadow-outline rounded-sm border-2',
+                wrapperChecked: 'bg-gray-200 focus:outline-none focus:shadow-outline rounded-sm border-2',
+                button: 'rounded-sm w-6 h-6 bg-white shadow flex items-center justify-center text-gray-800 text-xs',
+                buttonChecked: 'rounded-sm w-10 h-6 bg-white shadow flex items-center justify-center text-gray-800 text-xs',
+                checkedPlaceholder: 'rounded-sm w-10 h-6 flex items-center justify-center text-gray-500 text-xs',
+                uncheckedPlaceholder: 'rounded-sm w-10 h-6 flex items-center justify-center text-gray-500 text-xs'
+              }"
             ></t-toggle>
   <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord" class="ml-10"> Start Recording 🎥</t-button>
     <div v-else>
@@ -165,11 +165,13 @@ export default {
     const shareData = {
         title: 'Screen Recorder Pro',
         text: 'Watch my screen recording!',
-        url: this.vidUrl
+        url: this.vidUrl,
+        files: [this.file]
       }
       try {
       await navigator.share(shareData)
       } catch(err) {
+      console.log(err)
       this.copyUrl()
       }
     },
@@ -341,6 +343,7 @@ export default {
           alert(`error recording stream: ${event.error.name}`)
         });
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
+        console.log(this.speechEnabled)
         if(this.speechEnabled == true) {
           this.speechKit.speak('Recording started!')
         }
@@ -423,7 +426,7 @@ export default {
   },
   async created () {
     try {
-      this.speechKit = new SpeechKit()
+      this.speechKit = new SpeechKit(false, false)
       if(localStorage.youtube_key != null) {
         this.setYouTube(localStorage.youtube_key)
           this.youtube_ready = true
