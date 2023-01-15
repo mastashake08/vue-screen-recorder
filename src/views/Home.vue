@@ -11,7 +11,7 @@
     computer using Chrome, Firefox or Safari!
     </p>
     <p class="text-base font-light leading-relaxed mt-0 mb-4 text-gray-800">
-     Want to upload your videos to YouTube or upload to Google Drive? Connect your Google account!
+     Want to upload your videos to Google Drive? Connect your Google account!
      We don't keep your data when you login and it is not required to use the application. To learn more please visit the <a href="/#/privacy">privacy policy</a>
     </p>
     <h1 class="text-3xl font-large text-gray-500 uppercase">To Date We Have Processed: <strong class="animate-pulse text-3xl font-large text-red-500">{{bytes_processed}}</strong> bytes worth of video data!</h1>
@@ -31,9 +31,9 @@
     </div>
   </template>
 </t-modal>
-<div class="mt-5 mb-5">
+<!-- <div class="mt-5 mb-5">
    <t-button v-on:click="connectToYoutube" v-if="!youtube_ready"> Connect To Google</t-button>
-</div>
+</div> -->
 <div class="mt-5 mb-5">
   <t-toggle
               v-if="!isRecording"
@@ -78,7 +78,7 @@
  import { mapGetters, mapActions } from 'vuex'
  import JSZip from 'jszip'
  import FileSaver from 'file-saver'
- import SpeechKit from '../classes/SpeechKit'
+ import SpeechKit from '@mastashake08/speech-kit'
 export default {
   name: 'Home',
   components: { CookieLaw },
@@ -115,7 +115,7 @@ export default {
       transcript: {},
       vidUrl: '',
       shareReady: false,
-      speechEnabled: false
+      speechEnabled: true
     }
   },
   methods: {
