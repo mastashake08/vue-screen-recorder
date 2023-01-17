@@ -39,7 +39,7 @@ export default new Vuex.Store({
       return state.speech.stopListen()
     },
      getTranscript (state) {
-      state.transcript = state.speech.getText()
+      state.transcript = state.speech.getTextAsFile()
       return new Promise((resolve) => {
             // Do something here... lets say, a http call using vue-resource
             resolve(state.transcript)

@@ -222,7 +222,7 @@ export default {
       }
     },
     async setFile (){
-      this.transcript = this.speechKit.getText()
+      this.transcript = this.speechKit.getTextAsFile()
       this.file = new Blob(this.recordedChunks, {
         type: this.mediaRecorder.mimeType
       });
