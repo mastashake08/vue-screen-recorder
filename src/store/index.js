@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import Youtube from '../classes/Youtube'
-import SpeechKit from '../classes/SpeechKit'
+import SpeechKit from '@mastashake08/speech-kit'
 Vue.use(Vuex)
 
 export default new Vuex.Store({

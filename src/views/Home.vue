@@ -11,7 +11,7 @@
     computer using Chrome, Firefox or Safari!
     </p>
     <p class="text-base font-light leading-relaxed mt-0 mb-4 text-gray-800">
-     Want to upload your videos to YouTube or upload to Google Drive? Connect your Google account!
+     Want to upload your videos to Google Drive? Connect your Google account!
      We don't keep your data when you login and it is not required to use the application. To learn more please visit the <a href="/#/privacy">privacy policy</a>
     </p>
     <h1 class="text-3xl font-large text-gray-500 uppercase">To Date We Have Processed: <strong class="animate-pulse text-3xl font-large text-red-500">{{bytes_processed}}</strong> bytes worth of video data!</h1>
@@ -31,23 +31,23 @@
     </div>
   </template>
 </t-modal>
-<div class="mt-5 mb-5">
+<!-- <div class="mt-5 mb-5">
    <t-button v-on:click="connectToYoutube" v-if="!youtube_ready"> Connect To Google</t-button>
-</div>
+</div> -->
 <div class="mt-5 mb-5">
   <t-toggle
               v-if="!isRecording"
-              :model="speechEnabled"
+              v-model="speechEnabled"
               checkedLabel="Voices On"
               uncheckedLabel="Voices Off"
               :classes="{
-    wrapper: 'bg-gray-200 focus:outline-none focus:shadow-outline rounded-sm border-2',
-    wrapperChecked: 'bg-gray-200 focus:outline-none focus:shadow-outline rounded-sm border-2',
-    button: 'rounded-sm w-6 h-6 bg-white shadow flex items-center justify-center text-gray-800 text-xs',
-    buttonChecked: 'rounded-sm w-10 h-6 bg-white shadow flex items-center justify-center text-gray-800 text-xs',
-    checkedPlaceholder: 'rounded-sm w-10 h-6 flex items-center justify-center text-gray-500 text-xs',
-    uncheckedPlaceholder: 'rounded-sm w-10 h-6 flex items-center justify-center text-gray-500 text-xs'
-  }"
+                wrapper: 'bg-gray-200 focus:outline-none focus:shadow-outline rounded-sm border-2',
+                wrapperChecked: 'bg-gray-200 focus:outline-none focus:shadow-outline rounded-sm border-2',
+                button: 'rounded-sm w-6 h-6 bg-white shadow flex items-center justify-center text-gray-800 text-xs',
+                buttonChecked: 'rounded-sm w-10 h-6 bg-white shadow flex items-center justify-center text-gray-800 text-xs',
+                checkedPlaceholder: 'rounded-sm w-10 h-6 flex items-center justify-center text-gray-500 text-xs',
+                uncheckedPlaceholder: 'rounded-sm w-10 h-6 flex items-center justify-center text-gray-500 text-xs'
+              }"
             ></t-toggle>
   <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord" class="ml-10"> Start Recording 🎥</t-button>
     <div v-else>
@@ -78,7 +78,7 @@
  import { mapGetters, mapActions } from 'vuex'
  import JSZip from 'jszip'
  import FileSaver from 'file-saver'
- import SpeechKit from '../classes/SpeechKit'
+ import SpeechKit from '@mastashake08/speech-kit'
 export default {
   name: 'Home',
   components: { CookieLaw },
@@ -115,7 +115,7 @@ export default {
       transcript: {},
       vidUrl: '',
       shareReady: false,
-      speechEnabled: false
+      speechEnabled: true
     }
   },
   methods: {
@@ -165,11 +165,13 @@ export default {
     const shareData = {
         title: 'Screen Recorder Pro',
         text: 'Watch my screen recording!',
-        url: this.vidUrl
+        url: this.vidUrl,
+        files: [this.file]
       }
       try {
       await navigator.share(shareData)
       } catch(err) {
+      console.log(err)
       this.copyUrl()
       }
     },
@@ -314,6 +316,7 @@ export default {
     },
     stopStream: function() {
       this.mediaRecorder.stop()
+      navigator.clearAppBadge()
       this.stream.getTracks()
       .forEach(track => track.stop())
       this.stream = null
@@ -341,9 +344,11 @@ export default {
           alert(`error recording stream: ${event.error.name}`)
         });
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
+        console.log(this.speechEnabled)
         if(this.speechEnabled == true) {
           this.speechKit.speak('Recording started!')
         }
+        navigator.setAppBadge()
         this.mediaRecorder.start();
         this.isRecording = true
         this.speechKit.listen()
@@ -423,7 +428,7 @@ export default {
   },
   async created () {
     try {
-      this.speechKit = new SpeechKit()
+      this.speechKit = new SpeechKit({continuous: false, interimResults: true})
       if(localStorage.youtube_key != null) {
         this.setYouTube(localStorage.youtube_key)
           this.youtube_ready = true
