@@ -123,13 +123,17 @@ export default {
     async connectToYoutube () {
       window.open(`${this.url}/api/login/youtube`, "YouTube Login", 'width=800, height=600');
     },
-    async uploadToDrive () {
+    makeZip () {
       var d = new Date();
       var n = d.toUTCString();
       const zip = new JSZip()
       zip.file(`${n}.webm`, this.file)
       zip.file(`${n}.txt`, this.transcript)
       const content = await zip.generateAsync({ type: 'blob' })
+      return content
+    },
+    async uploadToDrive () {
+      const content = this.makeZip()
       let metadata = {
           'name': 'Screen Recorder Pro - ' + new Date(), // Filename at Google Drive
           'mimeType': 'application/zip', // mimeType at Google Drive
@@ -171,18 +175,12 @@ export default {
       try {
       await navigator.share(shareData)
       } catch(err) {
-      console.log(err)
-      this.copyUrl()
+        this.copyUrl()
       }
     },
     async emailFile () {
       try {
-        var d = new Date();
-        var n = d.toUTCString();
-        const zip = new JSZip()
-        zip.file(`${n}.webm`, this.file)
-        zip.file(`${n}.txt`, this.transcript)
-        const content = await zip.generateAsync({ type: 'blob' })
+        const content = this.makeZip()
         const fd = new FormData();
         fd.append('video', content)
         fd.append('email', this.sendEmail)
@@ -232,20 +230,12 @@ export default {
       })
       const newObjectUrl = URL.createObjectURL( this.file );
       const videoEl = document.getElementById('video')
-      // URLs created by `URL.createObjectURL` always use the `blob:` URI scheme: https://w3c.github.io/FileAPI/#dfn-createObjectURL
       const oldObjectUrl = videoEl.src;
       if( oldObjectUrl && oldObjectUrl.startsWith('blob:') ) {
-          // It is very important to revoke the previous ObjectURL to prevent memory leaks. Un-set the `src` first.
-          // See https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
-
-          videoEl.src = ''; // <-- Un-set the src property *before* revoking the object URL.
-          URL.revokeObjectURL( oldObjectUrl );
+        videoEl.src = ''; // <-- Un-set the src property *before* revoking the object URL.
+        URL.revokeObjectURL( oldObjectUrl );
       }
-
-      // Then set the new URL:
       videoEl.src = newObjectUrl;
-
-      // And load it:
       videoEl.load();
       this.$gtag.event('file-loaded', {
         'event_category' : 'Files',
@@ -265,8 +255,6 @@ export default {
       this.fileReady = true
     },
     download: function(){
-
-
       var d = new Date();
       var n = d.toUTCString();
       const zip = new JSZip()
@@ -325,12 +313,10 @@ export default {
         'event_label' : 'Stream Stopped'
       })
       this.speechKit.stopListen()
-      //this.speak('Recording stopped!')
     },
     getStream: async function() {
       try {
         this.stream =  await navigator.mediaDevices.getDisplayMedia(this.displayOptions);
-        console.log('STREAM', this.stream)
         this.stream.getVideoTracks()[0].onended = () => { // Click on browser UI stop sharing button
           this.stream.getTracks()
           .forEach(track => track.stop())
@@ -344,7 +330,6 @@ export default {
           alert(`error recording stream: ${event.error.name}`)
         });
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
-        console.log(this.speechEnabled)
         if(this.speechEnabled == true) {
           this.speechKit.speak('Recording started!')
         }
@@ -358,7 +343,7 @@ export default {
         })
 
       } catch(e) {
-        console.log(e)
+        alert('There was an error: ' + e.message)
         this.isRecording = false
         this.$gtag.exception('application-error', e)
       }
@@ -377,7 +362,6 @@ export default {
     const ctx = this
     window.addEventListener("message", function (e) {
       if (typeof e.data.youtube_token !== 'undefined') {
-        console.log(e.data.youtube_token)
         ctx.yt_token = e.data.youtube_token
         ctx.setYouTube(e.data.youtube_token)
         ctx.youtube_ready = true
@@ -398,26 +382,20 @@ export default {
             'event_category' : 'Notifications',
             'event_label' : 'Notification accepted'
           })
-          console.log(result)
         });
       } catch (error) {
-          // Safari doesn't return a promise for requestPermissions and it
-          // throws a TypeError. It takes a callback as the first argument
-          // instead.
           if (error instanceof TypeError) {
               Notification.requestPermission((result) => {
                 that.$gtag.event('accepted-notifications', {
                   'event_category' : 'Notifications',
                   'event_label' : 'Notification accepted'
                 })
-                console.log(result)
               });
           } else {
             this.$gtag.exception('notification-error', error)
             throw error;
           }
       }
-
     }
   },
   computed: {
@@ -439,7 +417,7 @@ export default {
         this.bytes_processed = event.data
       });
       if (tags.includes('get-latest-stats')) {
-          // this.skipDownloadUseCache()
+          this.skipDownloadUseCache()
       } else {
         this.getBytes()
       }

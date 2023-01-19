@@ -1,7 +1,7 @@
 {
   "name": "screen-recorder-pro",
-  "version": "3.1.5",
-  "private": true,
+  "version": "3.1.6",
+  "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
