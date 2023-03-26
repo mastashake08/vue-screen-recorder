@@ -1,4 +1,8 @@
 {
+    "manifest_version": 3,
+    "action": {
+      "default_popup": "index.html"
+    },
     "dir": "ltr",
     "lang": "en",
     "name": "Screen Record Pro",
