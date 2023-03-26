@@ -1,8 +1,10 @@
 {
     "manifest_version": 3,
+    "version": "1.0",
     "action": {
       "default_popup": "index.html"
     },
+    "update_url": "https://recorder.jcompsolu.com/extension/updates.xml",
     "dir": "ltr",
     "lang": "en",
     "name": "Screen Record Pro",
