@@ -260,7 +260,7 @@ export default {
 
       // Then set the new URL:
       videoEl.src = newObjectUrl;
-
+      videoEl.autoplay = false
       // And load it:
       videoEl.load();
       this.$gtag.event('file-loaded', {
