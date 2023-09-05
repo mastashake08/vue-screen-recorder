@@ -31,8 +31,14 @@
     </div>
   </template>
 </t-modal>
-<div class="mt-5 mb-5">
-   <t-button v-on:click="connectToYoutube" v-if="!youtube_ready"> Connect To Google</t-button>
+<div class="mt-5 mb-5" v-if="!youtube_ready">
+   <t-button v-on:click="connectToYoutube" > Connect To Google</t-button>
+</div>
+<div class="mt-5 mb-5" v-else>
+  <t-button v-on:click="toggleYTStream" v-if="!isYtStreaming" v-show="canRecord" class="ml-10"> Start Streaming 🎥</t-button>
+
+  <t-button v-on:click="toggleYTStream" v-else  class="ml-10"> Stop Streaming 🎥</t-button>
+
 </div>
 <div class="mt-5 mb-5">
   <t-toggle
@@ -54,10 +60,6 @@
 
             </div>
               <div v-else>
-                <t-button v-on:click="toggleYTStream" v-if="!isYtStreaming" v-show="canRecord" class="ml-10"> Start Streaming 🎥</t-button>
-
-                <t-button v-on:click="toggleYTStream" v-else  class="ml-10"> Stop Streaming 🎥</t-button>
-
                 <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
               </div>
       <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button>
@@ -222,7 +224,7 @@ export default {
         })
         const jres = await res.json()
         this.vidUrl = 'https://recorder.jcompsolu.com/#/view?video='+jres.id
-        this.shareReady = true
+
         this.$gtag.event('upload-file-data', {
           'name': this.file.name,
           'size': this.file.size
@@ -244,7 +246,6 @@ export default {
         'event_category' : 'Files',
         'event_label' : 'File Set'
       })
-      console.log(this.file)
       const newObjectUrl = URL.createObjectURL( this.file );
       const videoEl = document.getElementById('video')
       // URLs created by `URL.createObjectURL` always use the `blob:` URI scheme: https://w3c.github.io/FileAPI/#dfn-createObjectURL
@@ -311,6 +312,7 @@ export default {
       this.setFile()
       this.fileReady = true
       this.isRecording = false
+      this.shareReady = true
     },
     handleDataAvailable: async function(event) {
       if (event.data.size > 0) {
