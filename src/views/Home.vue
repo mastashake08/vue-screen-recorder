@@ -305,7 +305,8 @@ export default {
         if(this.isYtStreaming) {
           const file = this.makeBlob()
           const yt = this.getYoutube()
-          yt.upload
+          yt.createDashManifest(file)
+          yt.mpd.downloadXML()
         }
         this.setFile()
       } else {

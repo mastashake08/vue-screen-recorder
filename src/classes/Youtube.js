@@ -118,16 +118,24 @@ export default class Youtube {
     }
 
   }
-  uploadDashData (file, cid = '') {
-    this.makeRequest(`https://upload.youtube.com/dash_upload?cid=${cid}&copy=0&file=${file}`)
+  uploadDashData (cid = '', data) {
+    const formData  = new FormData()
+    formData.append('file', data)
+    this.makeRequest(`https://upload.youtube.com/dash_upload?cid=${cid}&copy=0`, 'PUT', formData)
   }
 
   createDashManifest(initVideo, cid = "") {
     if(this.startNumber === 1) {
-      this.mpd.createMpd(initVideo, this.baseUrl + `?cid=${cid}&copy=0&file=dash.mpd`)
+      this.mpd.createMpd(initVideo, this.baseUrl + `?cid=${cid}&copy=0`, this.startNumber)
+      const upload = this.mpd.getBlob()
+      const formData  = new FormData()
+      formData.append('file', upload)
+      this.uploadDashData(cid, formData)
       this.startNumber++
     } else {
-      this.uploadDashData(initVideo, cid)
+      const formData  = new FormData()
+      formData.append('file', initVideo)
+      this.uploadDashData(cid,formData)
     }
   }
 }
