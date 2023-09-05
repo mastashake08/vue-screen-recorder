@@ -15,6 +15,7 @@ export default new Vuex.Store({
       state.speech = new SpeechKit()
     },
     setYouTube (state, token) {
+      localStorage.youtube_key = token
       state.yt = new Youtube(token)
     },
     streamToYouTube (state) {

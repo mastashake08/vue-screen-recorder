@@ -1,6 +1,6 @@
 // This is the "Offline copy of assets" service worker
 
-const CACHE = "recorder-offline-v4.0.1";
+const CACHE = "recorder-offline-v4.0.3";
 const QUEUE_NAME = "bgSyncQueue";
 const urlsToCache = [
   '/img/logo.5c33d4ac.svg',
@@ -13,7 +13,7 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox
 
 async function fetchLatestStats (event) {
   try {
-    const result = await fetch(`${API_URL}/get-stats`)
+    await fetch(`${API_URL}/get-stats`)
   } catch (e) {
     console.log(e)
   }

@@ -468,6 +468,7 @@ export default {
       if(localStorage.youtube_key != null) {
         this.setYouTube(localStorage.youtube_key)
           this.youtube_ready = true
+          console.log(this.youtube_ready)
       }
       const registration = await navigator.serviceWorker.ready
       const tags = await registration.periodicSync.getTags()
