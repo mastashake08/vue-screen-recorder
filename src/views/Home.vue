@@ -49,19 +49,25 @@
                 uncheckedPlaceholder: 'rounded-sm w-10 h-6 flex items-center justify-center text-gray-500 text-xs'
               }"
             ></t-toggle>
-  <t-button v-on:click="getStream" v-if="!isRecording" v-show="canRecord" class="ml-10"> Start Recording 🎥</t-button>
-    <div v-else>
-      <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
-      </div>
-    <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button>
+            <div v-if="!isRecording">
+              <t-button v-on:click="getStream"  v-show="canRecord" class="ml-10"> Start Recording 🎥</t-button>
+              <t-button v-on:click="toggleYTStream" v-if="!isYtStreaming" v-show="canRecord" class="ml-10"> Start Streaming 🎥</t-button>
 
-    <t-button v-on:click="uploadToDrive" v-if="uploadReady" class="ml-10">Upload To Drive 🗄️</t-button>
-    <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
+            </div>
+              <div v-else>
+        <t-button v-on:click="toggleYTStream" v-if="isYtStreaming"  class="ml-10"> Stop Streaming 🎥</t-button>
+
+        <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
+        </div>
+      <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button>
+
+      <t-button v-on:click="uploadToDrive" v-if="uploadReady" class="ml-10">Upload To Drive 🗄️</t-button>
+      <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
     <t-button v-on:click="share" v-if="shareReady" class="ml-10"> Share 🔗</t-button>
     <t-button  v-on:click="$refs.modal.show()" autoPictureInPicture="true" v-if="fileReady" class="ml-10"> Email Recording 📧</t-button>
 </div>
 <div class="mt-5" v-show="fileReady">
-  <video class="center" height="500px"  controls  id="video" ></video>
+  <video class="center" height="500px"  controls  autoplay="false" id="video" ></video>
 </div>
 <Adsense
   data-ad-client="ca-pub-7023023584987784"
@@ -224,6 +230,7 @@ export default {
       }
     },
     makeBlob () {
+
       return new Blob(this.recordedChunks, {
         type: this.mediaRecorder.mimeType
       });
@@ -298,20 +305,26 @@ export default {
               });
       });
     },
+    stopEvent () {
+      this.setFile()
+    },
     handleDataAvailable: function(event) {
       if (event.data.size > 0) {
         this.recordedChunks.push(event.data);
+        console.log(this.recordedChunks)
         //this.isRecording = false
+        this.makeBlob()
         if(this.isYtStreaming) {
           const file = this.makeBlob()
-          const yt = this.getYoutube()
-          yt.createDashManifest(file)
-          yt.mpd.downloadXML()
+          const yt = this.getYoutube
+          yt.createDashManifest(file, 'dash.mpd')
         }
-        this.setFile()
       } else {
         // ...
       }
+    },
+    toggleYTStream () {
+      this.isYtStreaming = !this.isYtStreaming
     },
     async registerPeriodicNewsCheck () {
       const registration = await navigator.serviceWorker.ready;
@@ -353,12 +366,13 @@ export default {
           alert(`error recording stream: ${event.error.name}`)
         });
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
+        this.mediaRecorder.onstop = this.stopEvent()
         console.log(this.speechEnabled)
         if(this.speechEnabled == true) {
           this.speechKit.speak('Recording started!')
         }
         navigator.setAppBadge()
-        this.mediaRecorder.start(2000);
+        this.mediaRecorder.start();
         this.isRecording = true
         this.speechKit.listen()
         this.$gtag.event('stream-start', {

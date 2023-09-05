@@ -1,11 +1,14 @@
 import { MPD } from 'dash-manifest-creator'
 export default class Youtube {
+  startNumber;
   constructor (token) {
     this.token = token
     this.broadcasts = []
-    this.mpd = new MPD()
     this.baseUrl = 'https://upload.youtube.com/dash_upload'
     this.startNumber = 1
+    this.bind = {}
+    this.broadcast = {}
+    this.livestream = {}
   }
   gup(url, name) {
   name = name.replace(/[/,"\\").replace(/[\]]/,"\\");
@@ -44,11 +47,11 @@ export default class Youtube {
           "resolution": "variable"
         }
       }
-    const broadcast = await this.createBroadcast()
-    const livestream = await this.makeRequest('https://www.googleapis.com/youtube/v3/liveStreams?part=cdn&part=snippet', 'POST', JSON.stringify(data))
-      console.log([broadcast, livestream])
-      const bind = await this.bindBroadCast(broadcast.id, livestream.id)
-      console.log(bind)
+    this.broadcast = await this.createBroadcast()
+    this.livestream = await this.makeRequest('https://www.googleapis.com/youtube/v3/liveStreams?part=cdn&part=snippet', 'POST', JSON.stringify(data))
+      console.log([this.broadcast, this.livestream])
+      this.bind = await this.bindBroadCast(this.broadcast.id, this.livestream.id)
+      console.log(this.bind)
     } catch (e) {
       console.log(e)
     }
@@ -62,8 +65,7 @@ export default class Youtube {
       })
       const results = await res.json()
       this.broadcasts = results.items
-      console.log(this.broadcasts)
-      return results
+      return results.items
     } catch (e) {
       console.log(e)
     }
@@ -118,24 +120,30 @@ export default class Youtube {
     }
 
   }
-  uploadDashData (cid = '', data) {
+  async uploadDashData (cid = '', file, data) {
     const formData  = new FormData()
     formData.append('file', data)
-    this.makeRequest(`https://upload.youtube.com/dash_upload?cid=${cid}&copy=0`, 'PUT', formData)
+    await this.makeRequest(`https://upload.youtube.com/dash_upload?cid=${cid}&copy=0&file=${file}`, 'PUT', formData)
   }
-
-  createDashManifest(initVideo, cid = "") {
+  async createDashManifest(initVideo, file) {
+    const broadcasts = await this.getBroadcasts()
+    const cid = await broadcasts[0].snippet.channelId
     if(this.startNumber === 1) {
-      this.mpd.createMpd(initVideo, this.baseUrl + `?cid=${cid}&copy=0`, this.startNumber)
-      const upload = this.mpd.getBlob()
+
+      const mpd = new MPD(null, document.implementation.createDocument("", "", null))
+      mpd.createMpd(initVideo, this.baseUrl + `?cid=${cid}&copy=0&file=${file}`, this.startNumber)
+
+      const upload = mpd.getBlob()
       const formData  = new FormData()
       formData.append('file', upload)
-      this.uploadDashData(cid, formData)
-      this.startNumber++
+      mpd.downloadXML()
+      this.uploadDashData(cid,'dash.mpd',formData)
+
     } else {
       const formData  = new FormData()
       formData.append('file', initVideo)
-      this.uploadDashData(cid,formData)
+      this.uploadDashData(cid,'media001.webm',formData)
     }
+    this.startNumber = this.startNumber + 1
   }
 }
