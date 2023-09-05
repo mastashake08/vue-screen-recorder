@@ -11,6 +11,7 @@
     "@mastashake08/speech-kit": "^1.4.0",
     "@tailwindcss/forms": "^0.3.4",
     "core-js": "^3.6.5",
+    "dash-manifest-creator": "^1.0.4",
     "ffmpeg.js": "^4.2.9003",
     "file-saver": "^2.0.5",
     "jszip": "^3.7.1",

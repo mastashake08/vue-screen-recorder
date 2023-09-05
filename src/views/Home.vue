@@ -31,9 +31,9 @@
     </div>
   </template>
 </t-modal>
-<!-- <div class="mt-5 mb-5">
+<div class="mt-5 mb-5">
    <t-button v-on:click="connectToYoutube" v-if="!youtube_ready"> Connect To Google</t-button>
-</div> -->
+</div>
 <div class="mt-5 mb-5">
   <t-toggle
               v-if="!isRecording"
@@ -54,6 +54,7 @@
       <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
       </div>
     <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button>
+
     <t-button v-on:click="uploadToDrive" v-if="uploadReady" class="ml-10">Upload To Drive 🗄️</t-button>
     <t-button v-on:click="download" v-if="fileReady" class="ml-10"> Download Recording 🎬</t-button>
     <t-button v-on:click="share" v-if="shareReady" class="ml-10"> Share 🔗</t-button>
@@ -115,7 +116,8 @@ export default {
       transcript: {},
       vidUrl: '',
       shareReady: false,
-      speechEnabled: true
+      speechEnabled: true,
+      isYtStreaming: false
     }
   },
   methods: {
@@ -221,11 +223,14 @@ export default {
         this.$gtag.exception('application-error', e)
       }
     },
-    async setFile (){
-      this.transcript = this.speechKit.getTextAsFile()
-      this.file = new Blob(this.recordedChunks, {
+    makeBlob () {
+      return new Blob(this.recordedChunks, {
         type: this.mediaRecorder.mimeType
       });
+    },
+    async setFile (){
+      this.transcript = this.speechKit.getTextAsFile()
+      this.file = this.makeBlob()
       this.$gtag.event('file-set', {
         'event_category' : 'Files',
         'event_label' : 'File Set'
@@ -265,8 +270,6 @@ export default {
       this.fileReady = true
     },
     download: function(){
-
-
       var d = new Date();
       var n = d.toUTCString();
       const zip = new JSZip()
@@ -298,7 +301,12 @@ export default {
     handleDataAvailable: function(event) {
       if (event.data.size > 0) {
         this.recordedChunks.push(event.data);
-        this.isRecording = false
+        //this.isRecording = false
+        if(this.isYtStreaming) {
+          const file = this.makeBlob()
+          const yt = this.getYoutube()
+          yt.upload
+        }
         this.setFile()
       } else {
         // ...
@@ -349,13 +357,14 @@ export default {
           this.speechKit.speak('Recording started!')
         }
         navigator.setAppBadge()
-        this.mediaRecorder.start();
+        this.mediaRecorder.start(2000);
         this.isRecording = true
         this.speechKit.listen()
         this.$gtag.event('stream-start', {
           'event_category' : 'Streams',
           'event_label' : 'Stream Started'
         })
+
 
       } catch(e) {
         console.log(e)

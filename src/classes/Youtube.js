@@ -1,7 +1,11 @@
+import { MPD } from 'dash-manifest-creator'
 export default class Youtube {
   constructor (token) {
     this.token = token
     this.broadcasts = []
+    this.mpd = new MPD()
+    this.baseUrl = 'https://upload.youtube.com/dash_upload'
+    this.startNumber = 1
   }
   gup(url, name) {
   name = name.replace(/[/,"\\").replace(/[\]]/,"\\");
@@ -27,7 +31,7 @@ export default class Youtube {
     console.log(req.json())
   }
   //
-  
+
   async createNewLiveStream () {
     try {
       let data = {
@@ -113,5 +117,17 @@ export default class Youtube {
       alert('There was an error with the request! Please try agin later.')
     }
 
+  }
+  uploadDashData (file, cid = '') {
+    this.makeRequest(`https://upload.youtube.com/dash_upload?cid=${cid}&copy=0&file=${file}`)
+  }
+
+  createDashManifest(initVideo, cid = "") {
+    if(this.startNumber === 1) {
+      this.mpd.createMpd(initVideo, this.baseUrl + `?cid=${cid}&copy=0&file=dash.mpd`)
+      this.startNumber++
+    } else {
+      this.uploadDashData(initVideo, cid)
+    }
   }
 }

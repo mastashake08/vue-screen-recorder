@@ -27,10 +27,18 @@
         "url": "url"
       }
     },
-    "icons": {
-      "512":  "/logo.png",
-      "144": "/logo-144.png"
-    },
+    "icons": [
+        {
+            "src": "/logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "/logo-144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        }
+    ],
     "url": "https://recorder.jcompsolu.com",
     "screenshots": [],
     "categories": ["business", "utility", "entertainment"]
