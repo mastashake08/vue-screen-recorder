@@ -1,6 +1,7 @@
 import { MPD } from 'dash-manifest-creator'
 export default class Youtube {
   startNumber;
+  livestream;
   constructor (token) {
     this.token = token
     this.broadcasts = []
@@ -37,6 +38,7 @@ export default class Youtube {
 
   async createNewLiveStream () {
     try {
+
       let data = {
         "snippet": {
           "title": "Getting Started With Screen Recorder"
@@ -47,11 +49,14 @@ export default class Youtube {
           "resolution": "variable"
         }
       }
+      const headers = {
+        Authorization: `Bearer ${this.token}`
+      }
     this.broadcast = await this.createBroadcast()
-    this.livestream = await this.makeRequest('https://www.googleapis.com/youtube/v3/liveStreams?part=cdn&part=snippet', 'POST', JSON.stringify(data))
-      console.log([this.broadcast, this.livestream])
+    this.livestream = await this.makeRequest('https://www.googleapis.com/youtube/v3/liveStreams?part=cdn&part=snippet', 'POST', JSON.stringify(data), headers)
       this.bind = await this.bindBroadCast(this.broadcast.id, this.livestream.id)
-      console.log(this.bind)
+      sessionStorage.setItem("cid", this.livestream.cdn.ingestionInfo.ingestionAddress)
+      return this.livestream.cdn.ingestionInfo.streamName
     } catch (e) {
       console.log(e)
     }
@@ -72,10 +77,11 @@ export default class Youtube {
   }
   async createBroadcast () {
     try {
+      const title = prompt('Give your stream a title!')
       let data = {
         "snippet": {
           "scheduledStartTime": new Date(Date.now()).toISOString(),
-          "title": "Getting Started With Screen Recorder"
+          "title": title
         },
         "contentDetails": {
           "enableDvr": true,
@@ -86,7 +92,10 @@ export default class Youtube {
           "privacyStatus": "unlisted",
         }
       }
-      const res = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/liveBroadcasts?part=contentDetails&part=snippet&part=status','POST', JSON.stringify(data))
+      const headers = {
+        Authorization: `Bearer ${this.token}`
+      }
+      const res = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/liveBroadcasts?part=contentDetails&part=snippet&part=status','POST', JSON.stringify(data), headers)
     return res
     } catch (e) {
       console.log(e)
@@ -95,54 +104,54 @@ export default class Youtube {
   async bindBroadCast (broadcastId, streamId) {
     const url = `https://www.googleapis.com/youtube/v3/liveBroadcasts/bind?id=${broadcastId}&part=snippet&streamId=${streamId}`
     try {
-      const res = await this.makeRequest(url, 'POST', JSON.stringify({}))
+      const headers = {
+        Authorization: `Bearer ${this.token}`
+      }
+      const res = await this.makeRequest(url, 'POST', JSON.stringify({}), headers)
       return res
     } catch (e) {
       console.log(e)
     }
   }
   async endBroadcast() {}
-  async makeRequest(url, method, data) {
+  async makeRequest(url, method, data, headers ) {
     try {
       const res = await fetch(url, {
         method: method, // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'no-cache',
-        headers: {
-          Authorization: `Bearer ${this.token}`
-        },
+        headers: headers,
         body: data
       })
       const ret = await res.json()
       return ret
     } catch (e) {
-      alert('There was an error with the request! Please try agin later.')
+      console.log(e.message)
     }
 
   }
-  async uploadDashData (cid = '', file, data) {
+  async uploadDashData (file, data) {
+    const url = sessionStorage.cid+file
     const formData  = new FormData()
     formData.append('file', data)
-    await this.makeRequest(`https://upload.youtube.com/dash_upload?cid=${cid}&copy=0&file=${file}`, 'PUT', formData)
+    formData.append('url', url)
+
+    const headers = {
+    }
+    await this.makeRequest('https://screen-recorder-micro.jcompsolu.com/api/stream-to-youtube', 'POST', formData, headers)
   }
   async createDashManifest(initVideo, file) {
-    const broadcasts = await this.getBroadcasts()
-    const cid = await broadcasts[0].snippet.channelId
     if(this.startNumber === 1) {
-
+      const url = sessionStorage.cid+file
       const mpd = new MPD(null, document.implementation.createDocument("", "", null))
-      mpd.createMpd(initVideo, this.baseUrl + `?cid=${cid}&copy=0&file=${file}`, this.startNumber)
+      mpd.createMpd(initVideo, url, this.startNumber)
 
       const upload = mpd.getBlob()
-      const formData  = new FormData()
-      formData.append('file', upload)
       mpd.downloadXML()
-      this.uploadDashData(cid,'dash.mpd',formData)
+      this.uploadDashData('dash.mpd',upload)
 
     } else {
-      const formData  = new FormData()
-      formData.append('file', initVideo)
-      this.uploadDashData(cid,'media001.webm',formData)
+      this.uploadDashData(`media00${this.startNumber}.webm`,initVideo)
     }
     this.startNumber = this.startNumber + 1
   }

@@ -51,14 +51,15 @@
             ></t-toggle>
             <div v-if="!isRecording">
               <t-button v-on:click="getStream"  v-show="canRecord" class="ml-10"> Start Recording 🎥</t-button>
-              <t-button v-on:click="toggleYTStream" v-if="!isYtStreaming" v-show="canRecord" class="ml-10"> Start Streaming 🎥</t-button>
 
             </div>
               <div v-else>
-        <t-button v-on:click="toggleYTStream" v-if="isYtStreaming"  class="ml-10"> Stop Streaming 🎥</t-button>
+                <t-button v-on:click="toggleYTStream" v-if="!isYtStreaming" v-show="canRecord" class="ml-10"> Start Streaming 🎥</t-button>
 
-        <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
-        </div>
+                <t-button v-on:click="toggleYTStream" v-else  class="ml-10"> Stop Streaming 🎥</t-button>
+
+                <t-button v-on:click="stopStream"> Stop Screen Recording ❌ </t-button>
+              </div>
       <t-button v-on:click="upload" v-if="uploadReady" class="ml-10">Upload To Youtube 📺</t-button>
 
       <t-button v-on:click="uploadToDrive" v-if="uploadReady" class="ml-10">Upload To Drive 🗄️</t-button>
@@ -123,7 +124,8 @@ export default {
       vidUrl: '',
       shareReady: false,
       speechEnabled: true,
-      isYtStreaming: false
+      isYtStreaming: false,
+      cid: ''
     }
   },
   methods: {
@@ -242,6 +244,7 @@ export default {
         'event_category' : 'Files',
         'event_label' : 'File Set'
       })
+      console.log(this.file)
       const newObjectUrl = URL.createObjectURL( this.file );
       const videoEl = document.getElementById('video')
       // URLs created by `URL.createObjectURL` always use the `blob:` URI scheme: https://w3c.github.io/FileAPI/#dfn-createObjectURL
@@ -274,7 +277,6 @@ export default {
         })
       }
 
-      this.fileReady = true
     },
     download: function(){
       var d = new Date();
@@ -307,23 +309,28 @@ export default {
     },
     stopEvent () {
       this.setFile()
+      this.fileReady = true
+      this.isRecording = false
     },
-    handleDataAvailable: function(event) {
+    handleDataAvailable: async function(event) {
       if (event.data.size > 0) {
         this.recordedChunks.push(event.data);
-        console.log(this.recordedChunks)
         //this.isRecording = false
-        this.makeBlob()
+        this.setFile()
         if(this.isYtStreaming) {
           const file = this.makeBlob()
           const yt = this.getYoutube
+
           yt.createDashManifest(file, 'dash.mpd')
         }
       } else {
         // ...
       }
     },
-    toggleYTStream () {
+    async toggleYTStream () {
+      if(!this.isYtStreaming) {
+        this.cid = await this.streamToYouTube()
+      }
       this.isYtStreaming = !this.isYtStreaming
     },
     async registerPeriodicNewsCheck () {
@@ -348,6 +355,8 @@ export default {
       })
       this.speechKit.stopListen()
       //this.speak('Recording stopped!')
+      this.isRecording = false
+      this.fileReady = true
     },
     getStream: async function() {
       try {
@@ -366,13 +375,14 @@ export default {
           alert(`error recording stream: ${event.error.name}`)
         });
         this.mediaRecorder.ondataavailable = this.handleDataAvailable;
-        this.mediaRecorder.onstop = this.stopEvent()
+        this.mediaRecorder.onstop = this.stopEvent
         console.log(this.speechEnabled)
         if(this.speechEnabled == true) {
           this.speechKit.speak('Recording started!')
         }
+        this.fileReady = false
         navigator.setAppBadge()
-        this.mediaRecorder.start();
+        this.mediaRecorder.start(2000);
         this.isRecording = true
         this.speechKit.listen()
         this.$gtag.event('stream-start', {
