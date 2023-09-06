@@ -363,7 +363,7 @@ export default {
     getStream: async function() {
       try {
         this.stream =  await navigator.mediaDevices.getDisplayMedia(this.displayOptions);
-        console.log('STREAM', this.stream)
+  
         this.stream.getVideoTracks()[0].onended = () => { // Click on browser UI stop sharing button
           this.stream.getTracks()
           .forEach(track => track.stop())
