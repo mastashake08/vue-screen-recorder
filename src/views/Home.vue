@@ -465,8 +465,8 @@ export default {
   async created () {
     try {
       this.speechKit = new SpeechKit({continuous: false, interimResults: true})
-      if(localStorage.youtube_key != null) {
-        this.setYouTube(localStorage.youtube_key)
+      if(sessionStorage.youtube_key != null) {
+        this.setYouTube(sessionStorage.youtube_key)
           this.youtube_ready = true
           console.log(this.youtube_ready)
       }

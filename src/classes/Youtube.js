@@ -30,7 +30,7 @@ export default class Youtube {
         categoryId: '28'
     }
     data.append('snippet', JSON.stringify(resData))
-    //data.append('file', blob)
+    //data.append('filename', blob)
     const req = await this.makeRequest('https://youtube.googleapis.com/youtube/v3/videos?part=snippet,id', 'POST', data)
     console.log(req.json())
   }
@@ -86,10 +86,12 @@ export default class Youtube {
         "contentDetails": {
           "enableDvr": true,
           "enableAutoStart": true,
-          "enableAutoStop": true
+          "enableAutoStop": true,
+          "recordFromStart": true
         },
         "status": {
           "privacyStatus": "unlisted",
+          "selfDeclaredMadeForKids": false
         }
       }
       const headers = {
@@ -130,8 +132,8 @@ export default class Youtube {
     }
 
   }
-  async uploadDashData (file, data) {
-    const url = sessionStorage.cid+file
+  async uploadDashData (filename, data) {
+    const url = sessionStorage.cid+filename
     const formData  = new FormData()
     formData.append('file', data)
     formData.append('url', url)
@@ -140,15 +142,17 @@ export default class Youtube {
     }
     await this.makeRequest('https://screen-recorder-micro.jcompsolu.com/api/stream-to-youtube', 'POST', formData, headers)
   }
-  async createDashManifest(initVideo, file) {
+  async createDashManifest(initVideo, filename) {
     if(this.startNumber === 1) {
-      const url = sessionStorage.cid+file
+      const cid = sessionStorage.getItem('cid')
+      console.log('CID', cid)
+      const url = `${cid}media-$Number%09d$.webm`
       const mpd = new MPD(null, document.implementation.createDocument("", "", null))
       mpd.createMpd(initVideo, url, this.startNumber)
 
       const upload = mpd.getBlob()
       mpd.downloadXML()
-      this.uploadDashData('dash.mpd',upload)
+      this.uploadDashData(filename,upload)
 
     } else {
       this.uploadDashData(`media00${this.startNumber}.webm`,initVideo)
