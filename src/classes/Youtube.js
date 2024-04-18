@@ -1,8 +1,11 @@
 import { MPD } from 'dash-manifest-creator'
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
 export default class Youtube {
   startNumber;
   livestream;
-  constructor (token) {
+  ffmpegRef;
+  constructor (token, mime = 'video/webm; codecs="opus, vp09.00.10.08"') {
     this.token = token
     this.broadcasts = []
     this.baseUrl = 'https://upload.youtube.com/dash_upload'
@@ -10,6 +13,11 @@ export default class Youtube {
     this.bind = {}
     this.broadcast = {}
     this.livestream = {}
+    this.ffmpegRef = new FFmpeg()
+    this.mediaSource = new MediaSource()
+    this.mime = mime
+    this.file = null
+    this.sourceBuffer = this.mediaSource.addSourceBuffer(this.mime)
   }
   gup(url, name) {
   name = name.replace(/[/,"\\").replace(/[\]]/,"\\");
@@ -35,10 +43,40 @@ export default class Youtube {
     console.log(req.json())
   }
   //
+  async loadFfmpeg() {
+    this.sourceBuffer.addEventListener('updateend', function (e) {
+      if (!this.sourceBuffer.updating && this.mediaSource.readyState === 'open') {
+        this.mediaSource.endOfStream();
+      }
+    });
+    const baseURL = 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm'
+    const ffmpeg = this.ffmpegRef.current;
+    ffmpeg.on('log', ({ message }) => {
+        console.log(message);
+    });
+    // toBlobURL is used to bypass CORS issue, urls with the same
+    // domain can be used directly.
+    await ffmpeg.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
+    });
+  
+    this.setLoaded = true;
+    const inputDir = '/input';
+    const name = `${crypto.randomUUID()}.webm`
+    await ffmpeg.createDir(inputDir);
+    const inputFile = `${inputDir}/${name}`;
+    this.file = await fetchFile(await toBlobURL(this.mediaSource, this.mime));
+    ffmpeg.mount('WORKERFS', { files: [ this.file ]}, inputDir);
+  } 
+  handleNewData(evt) {
 
+    this.sourceBuffer.appendBuffer(evt.detail);
+  }
   async createNewLiveStream () {
     try {
-
+      await this.loadFfmpeg()
       let data = {
         "snippet": {
           "title": "Getting Started With Screen Recorder"
@@ -159,4 +197,6 @@ export default class Youtube {
     }
     this.startNumber = this.startNumber + 1
   }
+
+  
 }
